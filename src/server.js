@@ -638,6 +638,7 @@ app.post('/api/spotify/import/v2', requireAuth, async (req, res) => {
 
 async function youtubePlaylistTracks(playlistId) {
   const tracks = [];
+  const videoIds = [];
   let pageToken = '';
   do {
     const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${config.youtubeApiKey}${pageToken ? '&pageToken=' + pageToken : ''}`;
@@ -655,9 +656,22 @@ async function youtubePlaylistTracks(playlistId) {
         source: 'youtube',
         thumbnail: snip.thumbnails?.medium?.url || snip.thumbnails?.default?.url || '',
         duration: 0,
+        _videoId: videoId,
       });
+      videoIds.push(videoId);
     }
     pageToken = data.nextPageToken || '';
   } while (pageToken);
-  return tracks;
+
+  for (let i = 0; i < videoIds.length; i += 50) {
+    const batch = videoIds.slice(i, i + 50).join(',');
+    const detailsRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${batch}&key=${config.youtubeApiKey}`);
+    const detailsData = await detailsRes.json();
+    for (const item of (detailsData.items || [])) {
+      const track = tracks.find(t => t._videoId === item.id);
+      if (track) track.duration = parseDuration(item.contentDetails?.duration || '');
+    }
+  }
+
+  return tracks.map(({_videoId, ...t}) => t);
 }
