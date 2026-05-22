@@ -20,6 +20,8 @@ const config = {
 };
 
 const DISCORD_REDIRECT = `${config.baseUrl}/auth/callback`;
+const SPOTIFY_REDIRECT  = `${config.baseUrl}/auth/spotify/callback`;
+const SPOTIFY_SCOPES    = 'playlist-read-private playlist-read-collaborative';
 
 const db = new Database(config.dbPath);
 
@@ -58,25 +60,36 @@ db.exec(`
     track_count INTEGER DEFAULT 0,
     played_at   INTEGER DEFAULT (unixepoch())
   );
+  CREATE TABLE IF NOT EXISTS spotify_accounts (
+    discord_id     TEXT PRIMARY KEY REFERENCES users(discord_id),
+    spotify_id     TEXT NOT NULL,
+    display_name   TEXT,
+    access_token   TEXT NOT NULL,
+    refresh_token  TEXT NOT NULL,
+    expires_at     INTEGER NOT NULL,
+    connected_at   INTEGER DEFAULT (unixepoch())
+  );
 `);
 
 const stmts = {
-  upsertUser:        db.prepare(`INSERT INTO users (discord_id, username, global_name, avatar) VALUES (@discord_id, @username, @global_name, @avatar) ON CONFLICT(discord_id) DO UPDATE SET username=excluded.username, global_name=excluded.global_name, avatar=excluded.avatar`),
-  getUser:           db.prepare(`SELECT * FROM users WHERE discord_id = ?`),
-  getUserPlaylists:  db.prepare(`SELECT * FROM playlists WHERE owner_id = ? ORDER BY created_at DESC`),
-  getPlaylist:       db.prepare(`SELECT * FROM playlists WHERE id = ?`),
-  getPlaylistByName: db.prepare(`SELECT * FROM playlists WHERE owner_id = ? AND name = ? COLLATE NOCASE`),
-  createPlaylist:    db.prepare(`INSERT INTO playlists (owner_id, name, description, private) VALUES (@owner_id, @name, @description, @private)`),
-  deletePlaylist:    db.prepare(`DELETE FROM playlists WHERE id = ? AND owner_id = ?`),
-  updatePlaylist:    db.prepare(`UPDATE playlists SET name=@name, description=@description, private=@private WHERE id=@id AND owner_id=@owner_id`),
-  getPlaylistTracks: db.prepare(`SELECT * FROM tracks WHERE playlist_id = ? ORDER BY added_at ASC`),
-  addTrack:          db.prepare(`INSERT INTO tracks (playlist_id, title, artist, url, source, duration, thumbnail) VALUES (@playlist_id, @title, @artist, @url, @source, @duration, @thumbnail)`),
-  deleteTrack:       db.prepare(`DELETE FROM tracks WHERE id = ? AND playlist_id IN (SELECT id FROM playlists WHERE owner_id = ?)`),
-  trackCount:        db.prepare(`SELECT COUNT(*) as count FROM tracks WHERE playlist_id = ?`),
-  totalTracks:       db.prepare(`SELECT COUNT(*) as count FROM tracks WHERE playlist_id IN (SELECT id FROM playlists WHERE owner_id = ?)`),
-  totalPlays:        db.prepare(`SELECT COALESCE(SUM(track_count),0) as count FROM play_events WHERE discord_id = ?`),
-  recentTracks:      db.prepare(`SELECT t.title, t.artist, t.thumbnail, t.source, COUNT(*) as plays FROM play_events pe JOIN playlists p ON pe.playlist_id = p.id JOIN tracks t ON t.playlist_id = p.id WHERE pe.discord_id = ? GROUP BY t.title ORDER BY pe.played_at DESC LIMIT 5`),
-  logPlay:           db.prepare(`INSERT INTO play_events (discord_id, playlist_id, track_count) VALUES (@discord_id, @playlist_id, @track_count)`),
+  upsertUser:           db.prepare(`INSERT INTO users (discord_id, username, global_name, avatar) VALUES (@discord_id, @username, @global_name, @avatar) ON CONFLICT(discord_id) DO UPDATE SET username=excluded.username, global_name=excluded.global_name, avatar=excluded.avatar`),
+  getUser:              db.prepare(`SELECT * FROM users WHERE discord_id = ?`),
+  getUserPlaylists:     db.prepare(`SELECT * FROM playlists WHERE owner_id = ? ORDER BY created_at DESC`),
+  getPlaylist:          db.prepare(`SELECT * FROM playlists WHERE id = ?`),
+  getPlaylistByName:    db.prepare(`SELECT * FROM playlists WHERE owner_id = ? AND name = ? COLLATE NOCASE`),
+  createPlaylist:       db.prepare(`INSERT INTO playlists (owner_id, name, description, private) VALUES (@owner_id, @name, @description, @private)`),
+  deletePlaylist:       db.prepare(`DELETE FROM playlists WHERE id = ? AND owner_id = ?`),
+  updatePlaylist:       db.prepare(`UPDATE playlists SET name=@name, description=@description, private=@private WHERE id=@id AND owner_id=@owner_id`),
+  getPlaylistTracks:    db.prepare(`SELECT * FROM tracks WHERE playlist_id = ? ORDER BY added_at ASC`),
+  addTrack:             db.prepare(`INSERT INTO tracks (playlist_id, title, artist, url, source, duration, thumbnail) VALUES (@playlist_id, @title, @artist, @url, @source, @duration, @thumbnail)`),
+  deleteTrack:          db.prepare(`DELETE FROM tracks WHERE id = ? AND playlist_id IN (SELECT id FROM playlists WHERE owner_id = ?)`),
+  trackCount:           db.prepare(`SELECT COUNT(*) as count FROM tracks WHERE playlist_id = ?`),
+  totalTracks:          db.prepare(`SELECT COUNT(*) as count FROM tracks WHERE playlist_id IN (SELECT id FROM playlists WHERE owner_id = ?)`),
+  totalPlays:           db.prepare(`SELECT COALESCE(SUM(track_count),0) as count FROM play_events WHERE discord_id = ?`),
+  logPlay:              db.prepare(`INSERT INTO play_events (discord_id, playlist_id, track_count) VALUES (@discord_id, @playlist_id, @track_count)`),
+  getSpotifyAccount:    db.prepare(`SELECT * FROM spotify_accounts WHERE discord_id = ?`),
+  upsertSpotifyAccount: db.prepare(`INSERT INTO spotify_accounts (discord_id, spotify_id, display_name, access_token, refresh_token, expires_at) VALUES (@discord_id, @spotify_id, @display_name, @access_token, @refresh_token, @expires_at) ON CONFLICT(discord_id) DO UPDATE SET spotify_id=excluded.spotify_id, display_name=excluded.display_name, access_token=excluded.access_token, refresh_token=excluded.refresh_token, expires_at=excluded.expires_at`),
+  deleteSpotifyAccount: db.prepare(`DELETE FROM spotify_accounts WHERE discord_id = ?`),
 };
 
 app.use(express.json());
@@ -102,6 +115,37 @@ function ownPlaylist(req, res) {
   return playlist;
 }
 
+async function getValidSpotifyToken(discordId) {
+  const account = stmts.getSpotifyAccount.get(discordId);
+  if (!account) return null;
+
+  if (Date.now() < account.expires_at - 60000) {
+    return account.access_token;
+  }
+
+  // Refresh the token
+  const creds = Buffer.from(`${config.spotifyClientId}:${config.spotifyClientSecret}`).toString('base64');
+  const res = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: { Authorization: `Basic ${creds}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: account.refresh_token }),
+  });
+  const data = await res.json();
+  if (!data.access_token) return null;
+
+  stmts.upsertSpotifyAccount.run({
+    discord_id:    discordId,
+    spotify_id:    account.spotify_id,
+    display_name:  account.display_name,
+    access_token:  data.access_token,
+    refresh_token: data.refresh_token || account.refresh_token,
+    expires_at:    Date.now() + (data.expires_in * 1000),
+  });
+
+  return data.access_token;
+}
+
+// ── Discord Auth ──────────────────────────────────────────────────────────────
 app.get('/auth/discord', (req, res) => {
   const params = new URLSearchParams({
     client_id:     config.discordClientId,
@@ -168,21 +212,173 @@ app.post('/auth/logout', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+// ── Spotify Auth ──────────────────────────────────────────────────────────────
+app.get('/auth/spotify', requireAuth, (req, res) => {
+  const params = new URLSearchParams({
+    client_id:     config.spotifyClientId,
+    redirect_uri:  SPOTIFY_REDIRECT,
+    response_type: 'code',
+    scope:         SPOTIFY_SCOPES,
+    state:         req.user.discord_id,
+  });
+  res.redirect(`https://accounts.spotify.com/authorize?${params}`);
+});
+
+app.get('/auth/spotify/callback', async (req, res) => {
+  const { code, state, error } = req.query;
+  if (error || !code || !state) return res.redirect('/profile?error=spotify_denied');
+
+  try {
+    const creds = Buffer.from(`${config.spotifyClientId}:${config.spotifyClientSecret}`).toString('base64');
+    const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: { Authorization: `Basic ${creds}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type:   'authorization_code',
+        code,
+        redirect_uri: SPOTIFY_REDIRECT,
+      }),
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenData.access_token) throw new Error('No access token');
+
+    const profileRes = await fetch('https://api.spotify.com/v1/me', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+    const spotifyProfile = await profileRes.json();
+
+    stmts.upsertSpotifyAccount.run({
+      discord_id:    state,
+      spotify_id:    spotifyProfile.id,
+      display_name:  spotifyProfile.display_name || spotifyProfile.id,
+      access_token:  tokenData.access_token,
+      refresh_token: tokenData.refresh_token,
+      expires_at:    Date.now() + (tokenData.expires_in * 1000),
+    });
+
+    res.redirect('/profile?spotify=connected');
+  } catch (err) {
+    console.error('Spotify OAuth error:', err);
+    res.redirect('/profile?error=spotify_failed');
+  }
+});
+
+app.delete('/auth/spotify', requireAuth, (req, res) => {
+  stmts.deleteSpotifyAccount.run(req.user.discord_id);
+  res.json({ ok: true });
+});
+
+// ── Profile ───────────────────────────────────────────────────────────────────
 app.get('/api/profile', requireAuth, (req, res) => {
   const user = stmts.getUser.get(req.user.discord_id);
   const playlists = stmts.getUserPlaylists.all(req.user.discord_id);
   const totalTracks = stmts.totalTracks.get(req.user.discord_id).count;
   const totalPlays = stmts.totalPlays.get(req.user.discord_id).count;
+  const spotify = stmts.getSpotifyAccount.get(req.user.discord_id);
   res.json({
     user,
-    stats: {
-      playlists: playlists.length,
-      tracks:    totalTracks,
-      plays:     totalPlays,
-    },
+    stats: { playlists: playlists.length, tracks: totalTracks, plays: totalPlays },
+    spotify: spotify ? { connected: true, display_name: spotify.display_name, spotify_id: spotify.spotify_id } : { connected: false },
   });
 });
 
+// ── Spotify Playlists (for import) ────────────────────────────────────────────
+app.get('/api/spotify/playlists', requireAuth, async (req, res) => {
+  const token = await getValidSpotifyToken(req.user.discord_id);
+  if (!token) return res.status(401).json({ error: 'Spotify not connected' });
+
+  const playlists = [];
+  let url = 'https://api.spotify.com/v1/me/playlists?limit=50';
+
+  while (url) {
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await r.json();
+    for (const p of (data.items || [])) {
+      playlists.push({
+        id:          p.id,
+        name:        p.name,
+        track_count: p.tracks.total,
+        image:       p.images?.[0]?.url || '',
+        owner:       p.owner.display_name,
+      });
+    }
+    url = data.next || null;
+  }
+
+  res.json(playlists);
+});
+
+// ── Spotify Import ────────────────────────────────────────────────────────────
+app.post('/api/spotify/import', requireAuth, async (req, res) => {
+  const { playlist_ids } = req.body;
+  if (!playlist_ids?.length) return res.status(400).json({ error: 'No playlists selected' });
+
+  const token = await getValidSpotifyToken(req.user.discord_id);
+  if (!token) return res.status(401).json({ error: 'Spotify not connected' });
+
+  const results = [];
+
+  for (const spotifyPlaylistId of playlist_ids) {
+    try {
+      // Get playlist info
+      const infoRes = await fetch(`https://api.spotify.com/v1/playlists/${spotifyPlaylistId}?fields=name,tracks.total`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const info = await infoRes.json();
+
+      // Create playlist in DB
+      let playlistId;
+      try {
+        const result = stmts.createPlaylist.run({
+          owner_id:    req.user.discord_id,
+          name:        info.name,
+          description: '',
+          private:     1,
+        });
+        playlistId = result.lastInsertRowid;
+      } catch {
+        // Already exists — get existing
+        const existing = stmts.getPlaylistByName.get(req.user.discord_id, info.name);
+        if (!existing) { results.push({ name: info.name, error: 'Failed to create' }); continue; }
+        playlistId = existing.id;
+      }
+
+      // Fetch all tracks
+      let tracksUrl = `https://api.spotify.com/v1/playlists/${spotifyPlaylistId}/tracks?limit=100&fields=next,items(track(name,duration_ms,artists,album(images)))`;
+      let imported = 0;
+
+      while (tracksUrl) {
+        const tracksRes = await fetch(tracksUrl, { headers: { Authorization: `Bearer ${token}` } });
+        const tracksData = await tracksRes.json();
+
+        for (const item of (tracksData.items || [])) {
+          const t = item.track;
+          if (!t) continue;
+          stmts.addTrack.run({
+            playlist_id: playlistId,
+            title:       t.name,
+            artist:      t.artists?.map(a => a.name).join(', ') || '',
+            url:         `ytsearch:${t.artists?.[0]?.name || ''} ${t.name}`,
+            source:      'spotify',
+            duration:    Math.round((t.duration_ms || 0) / 1000),
+            thumbnail:   t.album?.images?.[0]?.url || '',
+          });
+          imported++;
+        }
+
+        tracksUrl = tracksData.next || null;
+      }
+
+      results.push({ name: info.name, imported });
+    } catch (err) {
+      results.push({ name: spotifyPlaylistId, error: String(err) });
+    }
+  }
+
+  res.json({ results });
+});
+
+// ── Playlist Routes ───────────────────────────────────────────────────────────
 app.get('/api/playlists', requireAuth, (req, res) => {
   const playlists = stmts.getUserPlaylists.all(req.user.discord_id);
   res.json(playlists.map(p => ({ ...p, track_count: stmts.trackCount.get(p.id).count })));
@@ -237,6 +433,7 @@ app.delete('/api/tracks/:id', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+// ── Search ────────────────────────────────────────────────────────────────────
 app.get('/api/search', requireAuth, async (req, res) => {
   const { q } = req.query;
   if (!q) return res.status(400).json({ error: 'q required' });
@@ -266,6 +463,7 @@ app.get('/api/search', requireAuth, async (req, res) => {
   }
 });
 
+// ── Bot Routes ────────────────────────────────────────────────────────────────
 app.get('/api/bot/user/:discordId/playlists', async (req, res) => {
   const playlists = stmts.getUserPlaylists.all(req.params.discordId);
   const pub = playlists.filter(p => p.private === 0).map(p => ({ ...p, track_count: stmts.trackCount.get(p.id).count }));
@@ -284,6 +482,7 @@ app.get('/api/bot/playlist/:name', async (req, res) => {
   res.json({ name: playlist.name, tracks: tracks.map(t => ({ title: t.title, artist: t.artist, url: t.url, source: t.source, duration: t.duration, thumbnail: t.thumbnail })) });
 });
 
+// ── YouTube helpers ───────────────────────────────────────────────────────────
 async function youtubeSearch(query) {
   const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=6&q=${encodeURIComponent(query)}&key=${config.youtubeApiKey}`;
   const res = await fetch(url);
@@ -325,6 +524,7 @@ function parseDuration(iso) {
   return (parseInt(m[1] || 0) * 3600) + (parseInt(m[2] || 0) * 60) + parseInt(m[3] || 0);
 }
 
+// ── Spotify client credentials helpers ───────────────────────────────────────
 let spotifyToken = null;
 let spotifyTokenExpiry = 0;
 
@@ -378,8 +578,9 @@ async function spotifyPlaylistTracks(playlistId) {
   return tracks;
 }
 
-app.get('/profile', (req, res) => res.sendFile(path.join(__dirname, '../public/profile.html')));
+// ── SPA routes ────────────────────────────────────────────────────────────────
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, '../public/dashboard.html')));
+app.get('/profile', (req, res) => res.sendFile(path.join(__dirname, '../public/profile.html')));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public/index.html')));
 
 app.listen(PORT, () => console.log(`Playlist app running on port ${PORT}`));
