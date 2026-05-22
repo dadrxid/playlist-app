@@ -14,7 +14,6 @@
       --cyan-dim: rgba(0,212,255,0.15); --cyan-glow: rgba(0,212,255,0.06);
       --text: #c8e8f0; --text-dim: #5a8a9a;
       --border: rgba(0,212,255,0.12); --border-hover: rgba(0,212,255,0.35);
-      --spotify: #1ed760;
     }
     html, body { min-height: 100vh; background: var(--bg); font-family: 'Rajdhani', sans-serif; color: var(--text); }
     body::before {
@@ -29,12 +28,7 @@
       background-size: 40px 40px; pointer-events: none; z-index: 0;
     }
     .app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
-    .sidebar {
-      width: 220px; flex-shrink: 0; background: rgba(10,21,32,0.95);
-      border-right: 1px solid var(--border); padding: 24px 14px;
-      display: flex; flex-direction: column; gap: 4px;
-      position: sticky; top: 0; height: 100vh;
-    }
+    .sidebar { width: 220px; flex-shrink: 0; background: rgba(10,21,32,0.95); border-right: 1px solid var(--border); padding: 24px 14px; display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100vh; }
     .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 8px 10px 20px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
     .logo-icon { width: 34px; height: 34px; border: 1.5px solid var(--cyan); border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(0,212,255,0.2); flex-shrink: 0; }
     .logo-icon svg { width: 18px; height: 18px; stroke: var(--cyan); fill: none; stroke-width: 1.5; }
@@ -62,12 +56,7 @@
       .stats-grid { grid-template-columns: 1fr 1fr; }
       .mobile-nav { display: flex; }
     }
-    .mobile-nav {
-      display: none; position: fixed; bottom: 0; left: 0; right: 0;
-      background: rgba(10,21,32,0.97); border-top: 1px solid var(--border);
-      padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
-      z-index: 50; justify-content: space-around;
-    }
+    .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,21,32,0.97); border-top: 1px solid var(--border); padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); z-index: 50; justify-content: space-around; }
     .mobile-nav a { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-dim); text-decoration: none; font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; letter-spacing: 0.08em; }
     .mobile-nav a svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5; }
     .mobile-nav a.active { color: var(--cyan); }
@@ -97,55 +86,10 @@
     .info-row:first-child { padding-top: 0; }
     .info-key { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--teal); letter-spacing: 0.1em; text-transform: uppercase; flex-shrink: 0; }
     .info-val { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.04em; color: var(--text); text-align: right; }
-
-    /* Spotify card */
-    .spotify-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
-    .spotify-connected { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    .spotify-info { display: flex; align-items: center; gap: 12px; }
-    .spotify-logo { width: 36px; height: 36px; flex-shrink: 0; }
-    .spotify-name { font-size: 1rem; font-weight: 600; letter-spacing: 0.04em; color: var(--spotify); }
-    .spotify-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-dim); }
-    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.95rem; letter-spacing: 0.06em; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; text-decoration: none; }
-    .btn-spotify { background: rgba(30,215,96,0.1); color: var(--spotify); border-color: rgba(30,215,96,0.3); }
-    .btn-spotify:hover { background: rgba(30,215,96,0.2); border-color: var(--spotify); transform: translateY(-1px); }
-    .btn-ghost { background: transparent; color: var(--text-dim); border-color: var(--border); }
-    .btn-ghost:hover { color: var(--text); border-color: var(--border-hover); background: var(--bg3); }
-    .btn-danger { background: rgba(160,48,48,0.1); color: #e06060; border-color: rgba(160,48,48,0.3); }
-    .btn-danger:hover { background: rgba(160,48,48,0.2); }
-    .btn-primary { background: var(--cyan-dim); color: var(--cyan); border-color: rgba(0,212,255,0.3); }
-    .btn-primary:hover { background: rgba(0,212,255,0.25); border-color: var(--cyan); transform: translateY(-1px); }
-
-    /* Import modal */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
-    .modal-overlay.open { display: flex; }
-    .modal { background: var(--bg2); border: 1px solid var(--border-hover); border-radius: 10px; padding: 28px; width: min(500px, calc(100vw - 32px)); max-height: 80vh; display: flex; flex-direction: column; animation: modalIn 0.2s ease both; }
-    @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-    .modal h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 6px; color: #e8f4f8; }
-    .modal-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-dim); margin-bottom: 16px; }
-    .playlist-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-    .playlist-item { display: flex; align-items: center; gap: 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; cursor: pointer; transition: all 0.15s; }
-    .playlist-item:hover { border-color: var(--border-hover); }
-    .playlist-item.selected { border-color: rgba(30,215,96,0.4); background: rgba(30,215,96,0.05); }
-    .playlist-item img { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; flex-shrink: 0; background: var(--bg2); }
-    .playlist-item-info { flex: 1; min-width: 0; }
-    .playlist-item-name { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e8f4f8; }
-    .playlist-item-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--text-dim); }
-    .checkbox { width: 18px; height: 18px; border: 1.5px solid var(--border); border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-    .playlist-item.selected .checkbox { background: var(--spotify); border-color: var(--spotify); }
-    .checkbox::after { content: '✓'; color: #000; font-size: 0.7rem; font-weight: 700; opacity: 0; }
-    .playlist-item.selected .checkbox::after { opacity: 1; }
-    .modal-actions { display: flex; gap: 8px; justify-content: space-between; align-items: center; }
-    .select-count { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-dim); }
-
     .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 40px auto; }
-    .spinner-sm { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--spotify); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .content { animation: fadeUp 0.3s ease both; }
-    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg2); border: 1px solid var(--border-hover); border-radius: 6px; padding: 10px 16px; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; z-index: 200; animation: fadeUp 0.3s ease; pointer-events: none; letter-spacing: 0.06em; }
-    .toast.success { border-color: rgba(0,180,160,0.4); color: var(--teal); }
-    .toast.error { border-color: rgba(160,48,48,0.4); color: #e06060; }
-    .toast.spotify { border-color: rgba(30,215,96,0.4); color: var(--spotify); }
   </style>
 </head>
 <body>
@@ -185,7 +129,6 @@
   <main class="main">
     <div id="loading"><div class="spinner"></div></div>
     <div id="content" class="content" style="display:none">
-
       <div class="section-label">profile</div>
       <div class="profile-header">
         <div class="avatar-lg" id="profileAvatar">
@@ -215,11 +158,6 @@
           <div class="stat-value" id="statPlays">0</div>
           <div class="stat-label">times queued</div>
         </div>
-      </div>
-
-      <div class="section-label">spotify</div>
-      <div class="spotify-card" id="spotifyCard">
-        <!-- filled by JS -->
       </div>
 
       <div class="section-label">account</div>
@@ -256,216 +194,37 @@
   </a>
 </nav>
 
-<!-- Import Modal -->
-<div class="modal-overlay" id="importModal">
-  <div class="modal">
-    <h2>IMPORT FROM SPOTIFY</h2>
-    <div class="modal-sub">select playlists to import — they'll be added as private playlists</div>
-    <div class="playlist-list" id="importList"><div class="spinner"></div></div>
-    <div class="modal-actions">
-      <span class="select-count" id="selectCount">0 selected</span>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-ghost" onclick="closeModal()">CANCEL</button>
-        <button class="btn btn-primary" onclick="importSelected()" id="importBtn">IMPORT</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
-let selectedPlaylists = new Set();
-let spotifyConnected = false;
-
 async function init() {
   try {
     const [meRes, profileRes] = await Promise.all([fetch('/auth/me'), fetch('/api/profile')]);
     if (!meRes.ok) { window.location.href = '/'; return; }
     const me = await meRes.json();
     const profile = await profileRes.json();
-
     document.getElementById('sidebarName').textContent = me.global_name || me.username;
     const avatarSm = document.getElementById('sidebarAvatar');
     if (me.avatar) avatarSm.innerHTML = `<img src="https://cdn.discordapp.com/avatars/${me.discord_id}/${me.avatar}.png?size=64" alt="">`;
-
     document.getElementById('profileName').textContent = me.global_name || me.username;
     document.getElementById('profileHandle').textContent = me.username;
     const joined = new Date(profile.user.created_at * 1000);
     const joinedStr = joined.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     document.getElementById('profileJoined').textContent = joinedStr;
-
     const avatarLg = document.getElementById('profileAvatar');
     if (me.avatar) avatarLg.innerHTML = `<img src="https://cdn.discordapp.com/avatars/${me.discord_id}/${me.avatar}.png?size=128" alt="">`;
-
     document.getElementById('statPlaylists').textContent = profile.stats.playlists;
     document.getElementById('statTracks').textContent = profile.stats.tracks;
     document.getElementById('statPlays').textContent = profile.stats.plays;
     document.getElementById('infoId').textContent = me.discord_id;
     document.getElementById('infoUsername').textContent = me.username;
     document.getElementById('infoJoined').textContent = joinedStr;
-
-    spotifyConnected = profile.spotify.connected;
-    renderSpotifyCard(profile.spotify);
-
     document.getElementById('loading').style.display = 'none';
     document.getElementById('content').style.display = 'block';
-
-    // Handle redirect params
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('spotify') === 'connected') toast('spotify connected!', 'spotify');
-    if (params.get('error') === 'spotify_denied') toast('spotify connection cancelled', 'error');
-    if (params.get('error') === 'spotify_failed') toast('spotify connection failed', 'error');
-    window.history.replaceState({}, '', '/profile');
   } catch { window.location.href = '/'; }
 }
-
-function renderSpotifyCard(spotify) {
-  const card = document.getElementById('spotifyCard');
-  if (spotify.connected) {
-    card.innerHTML = `
-      <div class="spotify-connected">
-        <div class="spotify-info">
-          <svg class="spotify-logo" viewBox="0 0 24 24" fill="#1ed760">
-            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 0 1-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 0 1-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 0 1 .207.857zm1.224-2.722a.78.78 0 0 1-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 0 1-.973-.519.781.781 0 0 1 .52-.973c3.632-1.102 8.147-.568 11.233 1.329a.78.78 0 0 1 .257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 1 1-.543-1.794c3.526-1.07 9.389-.863 13.098 1.329a.937.937 0 0 1-.937 1.622z"/>
-          </svg>
-          <div>
-            <div class="spotify-name">${escHtml(spotify.display_name)}</div>
-            <div class="spotify-sub">connected · ${escHtml(spotify.spotify_id)}</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-primary btn-spotify" onclick="openImportModal()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            IMPORT
-          </button>
-          <button class="btn btn-danger" onclick="disconnectSpotify()">DISCONNECT</button>
-        </div>
-      </div>`;
-  } else {
-    card.innerHTML = `
-      <div class="spotify-connected">
-        <div class="spotify-info">
-          <svg class="spotify-logo" viewBox="0 0 24 24" fill="#5a8a9a">
-            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 0 1-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 0 1-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 0 1 .207.857zm1.224-2.722a.78.78 0 0 1-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 0 1-.973-.519.781.781 0 0 1 .52-.973c3.632-1.102 8.147-.568 11.233 1.329a.78.78 0 0 1 .257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 1 1-.543-1.794c3.526-1.07 9.389-.863 13.098 1.329a.937.937 0 0 1-.937 1.622z"/>
-          </svg>
-          <div>
-            <div style="font-size:0.95rem;font-weight:600;color:var(--text-dim)">Spotify</div>
-            <div class="spotify-sub">not connected</div>
-          </div>
-        </div>
-        <a href="/auth/spotify" class="btn btn-spotify">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-          CONNECT SPOTIFY
-        </a>
-      </div>`;
-  }
-}
-
-async function disconnectSpotify() {
-  if (!confirm('disconnect spotify?')) return;
-  const res = await fetch('/auth/spotify', { method: 'DELETE' });
-  if (res.ok) {
-    spotifyConnected = false;
-    renderSpotifyCard({ connected: false });
-    toast('spotify disconnected', 'success');
-  }
-}
-
-async function openImportModal() {
-  selectedPlaylists.clear();
-  updateSelectCount();
-  document.getElementById('importList').innerHTML = '<div class="spinner"></div>';
-  document.getElementById('importModal').classList.add('open');
-
-  const res = await fetch('/api/spotify/playlists');
-  if (!res.ok) {
-    document.getElementById('importList').innerHTML = '<p style="color:var(--text-dim);font-family:\'Share Tech Mono\',monospace;font-size:0.7rem;text-align:center;padding:20px">failed to load playlists</p>';
-    return;
-  }
-
-  const playlists = await res.json();
-  if (!playlists.length) {
-    document.getElementById('importList').innerHTML = '<p style="color:var(--text-dim);font-family:\'Share Tech Mono\',monospace;font-size:0.7rem;text-align:center;padding:20px">no playlists found</p>';
-    return;
-  }
-
-  document.getElementById('importList').innerHTML = playlists.map(p => `
-    <div class="playlist-item" id="item-${p.id}" onclick="togglePlaylist('${p.id}')">
-      ${p.image ? `<img src="${escHtml(p.image)}" alt="">` : `<div style="width:40px;height:40px;background:var(--bg2);border-radius:4px;flex-shrink:0"></div>`}
-      <div class="playlist-item-info">
-        <div class="playlist-item-name">${escHtml(p.name)}</div>
-        <div class="playlist-item-sub">${p.track_count} tracks · ${escHtml(p.owner)}</div>
-      </div>
-      <div class="checkbox"></div>
-    </div>
-  `).join('');
-}
-
-function togglePlaylist(id) {
-  const el = document.getElementById(`item-${id}`);
-  if (selectedPlaylists.has(id)) {
-    selectedPlaylists.delete(id);
-    el.classList.remove('selected');
-  } else {
-    selectedPlaylists.add(id);
-    el.classList.add('selected');
-  }
-  updateSelectCount();
-}
-
-function updateSelectCount() {
-  document.getElementById('selectCount').textContent = `${selectedPlaylists.size} selected`;
-}
-
-async function importSelected() {
-  if (selectedPlaylists.size === 0) { toast('select at least one playlist', 'error'); return; }
-
-  const btn = document.getElementById('importBtn');
-  btn.innerHTML = '<div class="spinner-sm"></div> IMPORTING...';
-  btn.disabled = true;
-
-  const res = await fetch('/api/spotify/import/v2', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ playlist_ids: [...selectedPlaylists] }),
-  });
-
-  const data = await res.json();
-  closeModal();
-
-  const total = data.results.reduce((acc, r) => acc + (r.imported || 0), 0);
-  toast(`imported ${data.results.length} playlist${data.results.length === 1 ? '' : 's'} · ${total} tracks`, 'spotify');
-
-  btn.innerHTML = 'IMPORT';
-  btn.disabled = false;
-}
-
-function closeModal() {
-  document.getElementById('importModal').classList.remove('open');
-}
-
-document.getElementById('importModal').addEventListener('click', e => {
-  if (e.target === document.getElementById('importModal')) closeModal();
-});
 
 async function logout() {
   await fetch('/auth/logout', { method: 'POST' });
   window.location.href = '/';
-}
-
-function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-let toastTimer;
-function toast(msg, type = 'success') {
-  const existing = document.querySelector('.toast');
-  if (existing) existing.remove();
-  clearTimeout(toastTimer);
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.textContent = msg;
-  document.body.appendChild(el);
-  toastTimer = setTimeout(() => el.remove(), 4000);
 }
 
 init();
