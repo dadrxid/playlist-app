@@ -266,6 +266,13 @@ app.get('/api/search', requireAuth, async (req, res) => {
   }
 });
 
+app.get('/api/bot/user/:discordId/playlists', async (req, res) => {
+  const playlists = stmts.getUserPlaylists.all(req.params.discordId);
+  const pub = playlists.filter(p => p.private === 0).map(p => ({ ...p, track_count: stmts.trackCount.get(p.id).count }));
+  if (pub.length === 0) return res.status(404).json({ error: 'No public playlists' });
+  res.json(pub);
+});
+
 app.get('/api/bot/playlist/:name', async (req, res) => {
   const { user } = req.query;
   if (!user) return res.status(400).json({ error: 'user param required' });
