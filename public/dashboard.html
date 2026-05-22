@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>droidlab · dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan:   #00d4ff;
+      --bg:     #080b10;
+      --bg2:    #0d1117;
+      --bg3:    #141920;
+      --bg4:    #1a2030;
+      --border: rgba(0,212,255,0.1);
+      --border2:rgba(0,212,255,0.2);
+      --text:   #e8edf2;
+      --muted:  #4a5568;
+      --danger: #ff4444;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+    .app { display: flex; min-height: 100vh; position: relative; }
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      background: rgba(13,17,23,0.9); backdrop-filter: blur(10px);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      display: flex; flex-direction: column; gap: 8px;
+      position: sticky; top: 0; height: 100vh;
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .sidebar-logo svg { width: 28px; height: 28px; }
+    .sidebar-logo-text { font-size: 1rem; font-weight: 800; color: var(--cyan); }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 8px;
+      cursor: pointer; font-size: 0.9rem; color: var(--muted);
+      transition: all 0.15s; border: 1px solid transparent; text-decoration: none;
+    }
+    .nav-item:hover { background: var(--bg3); color: var(--text); }
+    .nav-item.active { background: rgba(0,212,255,0.08); border-color: var(--border2); color: var(--cyan); }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-bottom { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
+    .user-pill { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; background: var(--bg3); }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--bg4); border: 1px solid var(--border2); overflow: hidden; flex-shrink: 0; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+    .logout-btn { background: none; border: none; color: var(--muted); cursor: pointer; margin-left: auto; padding: 4px; border-radius: 4px; transition: color 0.15s; }
+    .logout-btn:hover { color: var(--danger); }
+    .main { flex: 1; padding: 32px 36px; overflow-y: auto; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .page-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+    .page-title span { color: var(--cyan); }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; }
+    .btn-primary { background: var(--cyan); color: #000; }
+    .btn-primary:hover { background: #00bde8; transform: translateY(-1px); }
+    .btn-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+    .btn-ghost:hover { color: var(--text); border-color: var(--border2); background: var(--bg3); }
+    .playlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .playlist-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; position: relative; }
+    .playlist-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .playlist-card-icon { width: 48px; height: 48px; background: rgba(0,212,255,0.08); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; color: var(--cyan); }
+    .playlist-card-name { font-weight: 700; font-size: 1rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .playlist-card-meta { font-size: 0.78rem; color: var(--muted); font-family: 'Space Mono', monospace; display: flex; align-items: center; gap: 8px; }
+    .badge { font-family: 'Space Mono', monospace; font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; background: rgba(0,212,255,0.08); border: 1px solid var(--border); color: var(--cyan); }
+    .badge.private { background: rgba(255,68,68,0.08); border-color: rgba(255,68,68,0.2); color: #ff6b6b; }
+    .card-actions { position: absolute; top: 14px; right: 14px; display: flex; gap: 6px; opacity: 0; transition: opacity 0.15s; }
+    .playlist-card:hover .card-actions { opacity: 1; }
+    .icon-btn { background: var(--bg3); border: 1px solid var(--border); color: var(--muted); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; }
+    .icon-btn:hover { color: var(--text); border-color: var(--border2); }
+    .icon-btn.danger:hover { color: var(--danger); border-color: rgba(255,68,68,0.3); }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-state svg { opacity: 0.2; margin-bottom: 16px; }
+    #backBtn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--muted); cursor: pointer; font-family: 'Syne', sans-serif; font-size: 0.85rem; margin-bottom: 24px; transition: color 0.15s; }
+    #backBtn:hover { color: var(--text); }
+    .track-list { display: flex; flex-direction: column; gap: 8px; }
+    .track-item { display: flex; align-items: center; gap: 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; transition: all 0.15s; }
+    .track-item:hover { border-color: var(--border2); }
+    .track-thumb { width: 44px; height: 44px; border-radius: 6px; background: var(--bg4); object-fit: cover; flex-shrink: 0; }
+    .track-info { flex: 1; min-width: 0; }
+    .track-title { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-artist { font-size: 0.78rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-source { font-family: 'Space Mono', monospace; font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; flex-shrink: 0; }
+    .track-source.youtube { background: rgba(255,0,0,0.1); color: #ff6b6b; border: 1px solid rgba(255,0,0,0.2); }
+    .track-source.spotify { background: rgba(30,215,96,0.1); color: #1ed760; border: 1px solid rgba(30,215,96,0.2); }
+    .track-duration { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--muted); flex-shrink: 0; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 14px; padding: 28px; width: min(420px, calc(100vw - 32px)); animation: modalIn 0.2s ease both; }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .modal h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 0.05em; }
+    input[type="text"], input[type="search"] { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.15s; }
+    input:focus { border-color: var(--border2); }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; }
+    .toggle { width: 40px; height: 22px; background: var(--bg4); border-radius: 11px; position: relative; cursor: pointer; transition: background 0.2s; border: 1px solid var(--border); }
+    .toggle.on { background: var(--cyan); border-color: var(--cyan); }
+    .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: transform 0.2s; }
+    .toggle.on::after { transform: translateX(18px); }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+    .search-results { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .search-result { display: flex; align-items: center; gap: 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: all 0.15s; }
+    .search-result:hover { border-color: var(--border2); background: var(--bg4); }
+    .search-result img { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; flex-shrink: 0; }
+    .result-info { flex: 1; min-width: 0; }
+    .result-title { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-sub { font-size: 0.75rem; color: var(--muted); }
+    .add-icon { color: var(--cyan); flex-shrink: 0; }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 16px auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px; padding: 12px 18px; font-size: 0.85rem; z-index: 200; animation: fadeUp 0.3s ease; pointer-events: none; }
+    .toast.success { border-color: rgba(30,215,96,0.3); color: #1ed760; }
+    .toast.error   { border-color: rgba(255,68,68,0.3); color: #ff6b6b; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="18" stroke="#00d4ff" stroke-width="1.5" opacity="0.3"/>
+        <circle cx="20" cy="20" r="10" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="20" cy="20" r="2.5" fill="#00d4ff"/>
+        <line x1="20" y1="2" x2="20" y2="10" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="20" y1="30" x2="20" y2="38" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="2" y1="20" x2="10" y2="20" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="30" y1="20" x2="38" y2="20" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="sidebar-logo-text">droidlab</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.55rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">playlists</div>
+      </div>
+    </div>
+    <a class="nav-item active" data-page="playlists" onclick="showPage('playlists')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      My Playlists
+    </a>
+    <a class="nav-item" href="https://droidlab.org" target="_blank">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      droidlab.org
+    </a>
+    <div class="sidebar-bottom">
+      <div class="user-pill">
+        <div class="avatar" id="sidebarAvatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" style="padding:6px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <span class="user-name" id="sidebarName">Loading…</span>
+        <button class="logout-btn" onclick="logout()" title="Logout">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="page active" id="page-playlists">
+      <div class="page-header">
+        <div class="page-title">My <span>Playlists</span></div>
+        <button class="btn btn-primary" onclick="openCreateModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Playlist
+        </button>
+      </div>
+      <div class="playlist-grid" id="playlistGrid"><div class="spinner"></div></div>
+    </div>
+    <div class="page" id="page-tracks">
+      <button id="backBtn" onclick="showPage('playlists')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to playlists
+      </button>
+      <div class="page-header">
+        <div>
+          <div class="page-title" id="trackPageTitle">Playlist</div>
+          <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);margin-top:4px" id="trackPageMeta"></div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddTrackModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Track
+        </button>
+      </div>
+      <div class="track-list" id="trackList"></div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="createModal">
+  <div class="modal">
+    <h2>New Playlist</h2>
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="newPlaylistName" placeholder="e.g. late night drives" maxlength="60" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <div class="toggle-row">
+        <span>Private</span>
+        <div class="toggle on" id="privateToggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('createModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="createPlaylist()">Create</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addTrackModal">
+  <div class="modal">
+    <h2>Add Track</h2>
+    <div class="form-group" style="display:flex;gap:8px">
+      <input type="search" id="trackSearch" placeholder="Search YouTube or paste Spotify/YouTube URL…" style="flex:1" autocomplete="off">
+      <button class="btn btn-primary" onclick="searchTracks()">Search</button>
+    </div>
+    <div id="searchResults"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('addTrackModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentUser = null;
+let playlists = [];
+let currentPlaylistId = null;
+
+async function init() {
+  try {
+    const res = await fetch('/auth/me');
+    if (!res.ok) { window.location.href = '/'; return; }
+    currentUser = await res.json();
+    renderUser(currentUser);
+    await loadPlaylists();
+  } catch { window.location.href = '/'; }
+}
+
+function renderUser(user) {
+  document.getElementById('sidebarName').textContent = user.global_name || user.username;
+  const avatarEl = document.getElementById('sidebarAvatar');
+  if (user.avatar) {
+    avatarEl.innerHTML = `<img src="https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar}.png?size=64" alt="">`;
+  }
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${id}`).classList.add('active');
+  document.querySelectorAll('.nav-item[data-page]').forEach(n => n.classList.toggle('active', n.dataset.page === id));
+}
+
+async function loadPlaylists() {
+  const res = await fetch('/api/playlists');
+  playlists = await res.json();
+  renderPlaylists();
+}
+
+function renderPlaylists() {
+  const grid = document.getElementById('playlistGrid');
+  if (!playlists.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><p>No playlists yet.<br>Create one to get started.</p></div>`;
+    return;
+  }
+  grid.innerHTML = playlists.map(p => `
+    <div class="playlist-card" onclick="openPlaylist(${p.id})">
+      <div class="card-actions">
+        <div class="icon-btn danger" onclick="event.stopPropagation();deletePlaylist(${p.id})" title="Delete">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </div>
+      </div>
+      <div class="playlist-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      </div>
+      <div class="playlist-card-name">${escHtml(p.name)}</div>
+      <div class="playlist-card-meta">
+        <span>${p.track_count} track${p.track_count !== 1 ? 's' : ''}</span>
+        <span class="badge ${p.private ? 'private' : ''}">${p.private ? 'private' : 'public'}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openCreateModal() {
+  document.getElementById('newPlaylistName').value = '';
+  document.getElementById('privateToggle').classList.add('on');
+  openModal('createModal');
+  setTimeout(() => document.getElementById('newPlaylistName').focus(), 100);
+}
+
+async function createPlaylist() {
+  const name = document.getElementById('newPlaylistName').value.trim();
+  if (!name) return;
+  const priv = document.getElementById('privateToggle').classList.contains('on');
+  const res = await fetch('/api/playlists', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, private: priv }),
+  });
+  if (res.ok) { closeModal('createModal'); await loadPlaylists(); toast('Playlist created', 'success'); }
+  else { const err = await res.json(); toast(err.error || 'Failed', 'error'); }
+}
+
+async function deletePlaylist(id) {
+  if (!confirm('Delete this playlist?')) return;
+  const res = await fetch(`/api/playlists/${id}`, { method: 'DELETE' });
+  if (res.ok) { await loadPlaylists(); toast('Deleted', 'success'); }
+}
+
+async function openPlaylist(id) {
+  currentPlaylistId = id;
+  const playlist = playlists.find(p => p.id === id);
+  document.getElementById('trackPageTitle').textContent = playlist.name;
+  document.getElementById('trackPageMeta').textContent = `${playlist.track_count} tracks · ${playlist.private ? 'private' : 'public'}`;
+  showPage('tracks');
+  await loadTracks(id);
+}
+
+async function loadTracks(id) {
+  const list = document.getElementById('trackList');
+  list.innerHTML = '<div class="spinner"></div>';
+  const res = await fetch(`/api/playlists/${id}/tracks`);
+  const tracks = await res.json();
+  if (!tracks.length) { list.innerHTML = `<div class="empty-state"><p>No tracks yet. Add some!</p></div>`; return; }
+  list.innerHTML = tracks.map(t => `
+    <div class="track-item" id="track-${t.id}">
+      ${t.thumbnail ? `<img class="track-thumb" src="${escHtml(t.thumbnail)}" alt="">` : `<div class="track-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/></svg></div>`}
+      <div class="track-info">
+        <div class="track-title">${escHtml(t.title)}</div>
+        <div class="track-artist">${escHtml(t.artist || '—')}</div>
+      </div>
+      <span class="track-source ${t.source}">${t.source}</span>
+      ${t.duration ? `<span class="track-duration">${formatDuration(t.duration)}</span>` : ''}
+      <div class="icon-btn danger" onclick="deleteTrack(${t.id})" title="Remove">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function deleteTrack(id) {
+  const res = await fetch(`/api/tracks/${id}`, { method: 'DELETE' });
+  if (res.ok) { document.getElementById(`track-${id}`)?.remove(); toast('Track removed', 'success'); }
+}
+
+function openAddTrackModal() {
+  document.getElementById('trackSearch').value = '';
+  document.getElementById('searchResults').innerHTML = '';
+  openModal('addTrackModal');
+  setTimeout(() => document.getElementById('trackSearch').focus(), 100);
+}
+
+async function searchTracks() {
+  const query = document.getElementById('trackSearch').value.trim();
+  if (!query) return;
+  const resultsEl = document.getElementById('searchResults');
+  resultsEl.innerHTML = '<div class="spinner"></div>';
+  const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+  const data = await res.json();
+  if (!data.results?.length) { resultsEl.innerHTML = '<p style="color:var(--muted);font-size:0.85rem;text-align:center;padding:16px">No results found</p>'; return; }
+  resultsEl.innerHTML = `<div class="search-results">${data.results.map(r => `
+    <div class="search-result" onclick='addTrack(${JSON.stringify(r)})'>
+      <img src="${escHtml(r.thumbnail || '')}" alt="" onerror="this.style.display='none'">
+      <div class="result-info">
+        <div class="result-title">${escHtml(r.title)}</div>
+        <div class="result-sub">${escHtml(r.artist || '')} ${r.duration ? '· ' + formatDuration(r.duration) : ''}</div>
+      </div>
+      <svg class="add-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  `).join('')}</div>`;
+}
+
+async function addTrack(track) {
+  const res = await fetch(`/api/playlists/${currentPlaylistId}/tracks`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(track),
+  });
+  if (res.ok) {
+    toast(`Added: ${track.title}`, 'success');
+    await loadTracks(currentPlaylistId);
+    const p = playlists.find(p => p.id === currentPlaylistId);
+    if (p) { p.track_count++; document.getElementById('trackPageMeta').textContent = `${p.track_count} tracks · ${p.private ? 'private' : 'public'}`; }
+  } else { toast('Failed to add track', 'error'); }
+}
+
+async function logout() {
+  await fetch('/auth/logout', { method: 'POST' });
+  window.location.href = '/';
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  if (e.key === 'Enter' && document.getElementById('createModal').classList.contains('open')) createPlaylist();
+  if (e.key === 'Enter' && document.getElementById('addTrackModal').classList.contains('open')) searchTracks();
+});
+
+document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); }));
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatDuration(secs) {
+  if (!secs) return '';
+  const m = Math.floor(secs / 60), s = secs % 60;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+let toastTimer;
+function toast(msg, type = 'success') {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  clearTimeout(toastTimer);
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  toastTimer = setTimeout(() => el.remove(), 3000);
+}
+
+init();
+</script>
+</body>
+</html>
