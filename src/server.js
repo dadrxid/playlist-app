@@ -317,6 +317,7 @@ app.post('/api/spotify/import', requireAuth, async (req, res) => {
   if (!token) return res.status(401).json({ error: 'Spotify not connected' });
 
   const results = [];
+  console.log("Import called for", playlist_ids.length, "playlists");
 
   for (const spotifyPlaylistId of playlist_ids) {
     try {
@@ -339,7 +340,7 @@ app.post('/api/spotify/import', requireAuth, async (req, res) => {
       } catch {
         // Already exists — get existing
         const existing = stmts.getPlaylistByName.get(req.user.discord_id, info.name);
-        if (!existing) { results.push({ name: info.name, error: 'Failed to create' }); continue; }
+        if (!existing) { console.log('Playlist info:', JSON.stringify(info)); results.push({ name: info.name || spotifyPlaylistId, error: 'Failed to create' }); continue; }
         playlistId = existing.id;
       }
 
