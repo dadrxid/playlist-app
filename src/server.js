@@ -410,6 +410,7 @@ app.patch('/api/playlists/:id', requireAuth, (req, res) => {
 app.delete('/api/playlists/:id', requireAuth, (req, res) => {
   const playlist = ownPlaylist(req, res);
   if (!playlist) return;
+  db.prepare("DELETE FROM play_events WHERE playlist_id = ?").run(playlist.id);
   stmts.deletePlaylist.run(playlist.id, req.user.discord_id);
   res.json({ ok: true });
 });
