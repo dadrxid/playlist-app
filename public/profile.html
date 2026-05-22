@@ -423,7 +423,7 @@ async function importSelected() {
   btn.innerHTML = '<div class="spinner-sm"></div> IMPORTING...';
   btn.disabled = true;
 
-  const res = await fetch('/api/spotify/import', {
+  const res = await fetch('/api/spotify/import/v2', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ playlist_ids: [...selectedPlaylists] }),

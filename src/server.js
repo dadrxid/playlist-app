@@ -322,10 +322,12 @@ app.post('/api/spotify/import', requireAuth, async (req, res) => {
   for (const spotifyPlaylistId of playlist_ids) {
     try {
       // Get playlist info
+      console.log('Fetching info for', spotifyPlaylistId);
       const infoRes = await fetch(`https://api.spotify.com/v1/playlists/${spotifyPlaylistId}?fields=name,tracks.total`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const info = await infoRes.json();
+      console.log('Playlist info:', JSON.stringify(info).slice(0, 200));
 
       // Create playlist in DB
       let playlistId;
@@ -585,3 +587,45 @@ app.get('/profile', (req, res) => res.sendFile(path.join(__dirname, '../public/p
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public/index.html')));
 
 app.listen(PORT, () => console.log(`Playlist app running on port ${PORT}`));
+
+// Override import route with fixed version
+app.post('/api/spotify/import/v2', requireAuth, async (req, res) => {
+  const { playlist_ids } = req.body;
+  if (!playlist_ids || playlist_ids.length === 0) return res.status(400).json({ error: 'No playlists selected' });
+  const account = stmts.getSpotifyAccount.get(req.user.discord_id);
+  if (!account) return res.status(401).json({ error: 'Spotify not connected' });
+  const token = await getValidSpotifyToken(req.user.discord_id);
+  if (!token) return res.status(401).json({ error: 'Could not get token' });
+  const results = [];
+  for (const pid of playlist_ids) {
+    try {
+      const infoRes = await fetch('https://api.spotify.com/v1/playlists/' + pid, { headers: { Authorization: 'Bearer ' + token } });
+      const info = await infoRes.json();
+      if (!info.name) { results.push({ id: pid, error: 'Not found: ' + JSON.stringify(info).slice(0,100) }); continue; }
+      let playlistId;
+      try {
+        playlistId = stmts.createPlaylist.run({ owner_id: req.user.discord_id, name: info.name, description: '', private: 0 }).lastInsertRowid;
+      } catch {
+        const ex = stmts.getPlaylistByName.get(req.user.discord_id, info.name);
+        if (!ex) { results.push({ name: info.name, error: 'create failed' }); continue; }
+        playlistId = ex.id;
+      }
+      let url = 'https://api.spotify.com/v1/playlists/' + pid + '/tracks?limit=100';
+      let imported = 0;
+      while (url) {
+        const td = await (await fetch(url, { headers: { Authorization: 'Bearer ' + token } })).json();
+        for (const item of (td.items || [])) {
+          const t = item.track;
+          if (!t || !t.name) continue;
+          const artist = (t.artists || []).map(a => a.name).join(', ');
+          const first = (t.artists || [])[0] ? t.artists[0].name : '';
+          stmts.addTrack.run({ playlist_id: playlistId, title: t.name, artist, url: 'ytsearch:' + first + ' ' + t.name, source: 'spotify', duration: Math.round((t.duration_ms || 0) / 1000), thumbnail: (t.album && t.album.images && t.album.images[0]) ? t.album.images[0].url : '' });
+          imported++;
+        }
+        url = td.next || null;
+      }
+      results.push({ name: info.name, imported });
+    } catch (err) { results.push({ id: pid, error: String(err) }); }
+  }
+  res.json({ results });
+});
