@@ -297,7 +297,7 @@ app.get('/api/spotify/playlists', requireAuth, async (req, res) => {
       playlists.push({
         id:          p.id,
         name:        p.name,
-        track_count: p.tracks?.total ?? 0,
+        track_count: p.tracks?.total ?? p.tracks?.items?.length ?? 0,
         image:       p.images?.[0]?.url || '',
         owner:       p.owner.display_name,
       });
@@ -333,7 +333,7 @@ app.post('/api/spotify/import', requireAuth, async (req, res) => {
           owner_id:    req.user.discord_id,
           name:        info.name,
           description: '',
-          private:     1,
+          private:     0,
         });
         playlistId = result.lastInsertRowid;
       } catch {
@@ -344,7 +344,7 @@ app.post('/api/spotify/import', requireAuth, async (req, res) => {
       }
 
       // Fetch all tracks
-      let tracksUrl = `https://api.spotify.com/v1/playlists/${spotifyPlaylistId}/tracks?limit=100&fields=next,items(track(name,duration_ms,artists,album(images)))`;
+      let tracksUrl = `https://api.spotify.com/v1/playlists/${spotifyPlaylistId}/tracks?limit=100`;
       let imported = 0;
 
       while (tracksUrl) {
