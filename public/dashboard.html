@@ -60,6 +60,7 @@
       .main { padding: 20px 16px; padding-bottom: 80px; }
       .playlist-grid { grid-template-columns: 1fr 1fr; }
       .mobile-nav { display: flex; }
+      .btn-row { flex-wrap: wrap; }
     }
     .mobile-nav {
       display: none; position: fixed; bottom: 0; left: 0; right: 0;
@@ -73,7 +74,8 @@
     .page { display: none; }
     .page.active { display: block; animation: fadeUp 0.3s ease both; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; gap: 12px; }
+    .btn-row { display: flex; gap: 8px; }
     .section-label { font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--teal); letter-spacing: 0.18em; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
     .section-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,180,160,0.3), transparent); }
     .btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.95rem; letter-spacing: 0.06em; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; }
@@ -81,6 +83,8 @@
     .btn-primary:hover { background: rgba(0,212,255,0.25); border-color: var(--cyan); transform: translateY(-1px); }
     .btn-ghost { background: transparent; color: var(--text-dim); border-color: var(--border); }
     .btn-ghost:hover { color: var(--text); border-color: var(--border-hover); background: var(--bg3); }
+    .btn-teal { background: rgba(0,180,160,0.1); color: var(--teal); border-color: rgba(0,180,160,0.3); }
+    .btn-teal:hover { background: rgba(0,180,160,0.2); border-color: var(--teal); transform: translateY(-1px); }
     .playlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
     .playlist-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
     .playlist-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--cyan-glow), transparent 60%); opacity: 0; transition: opacity 0.2s; }
@@ -115,12 +119,14 @@
     .track-duration { font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--text-dim); flex-shrink: 0; }
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--bg2); border: 1px solid var(--border-hover); border-radius: 10px; padding: 28px; width: min(400px, calc(100vw - 32px)); animation: modalIn 0.2s ease both; }
+    .modal { background: var(--bg2); border: 1px solid var(--border-hover); border-radius: 10px; padding: 28px; width: min(480px, calc(100vw - 32px)); animation: modalIn 0.2s ease both; }
     @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-    .modal h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 20px; color: #e8f4f8; }
+    .modal h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 6px; color: #e8f4f8; }
+    .modal-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-dim); margin-bottom: 20px; line-height: 1.6; }
+    .modal-sub span { color: var(--teal); }
     .form-group { margin-bottom: 14px; }
     label { display: block; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--teal); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
-    input[type="text"], input[type="search"] { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 9px 12px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; letter-spacing: 0.04em; outline: none; transition: border-color 0.15s; }
+    input[type="text"], input[type="search"], input[type="url"] { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 9px 12px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; letter-spacing: 0.04em; outline: none; transition: border-color 0.15s; }
     input:focus { border-color: rgba(0,212,255,0.4); }
     .toggle-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.95rem; font-weight: 500; letter-spacing: 0.04em; }
     .toggle { width: 38px; height: 20px; background: var(--bg3); border-radius: 10px; position: relative; cursor: pointer; transition: background 0.2s; border: 1px solid var(--border); }
@@ -136,6 +142,9 @@
     .result-title { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e8f4f8; }
     .result-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--text-dim); }
     .add-icon { color: var(--teal); flex-shrink: 0; }
+    .import-progress { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 14px; margin-top: 12px; display: none; }
+    .import-progress.show { display: block; }
+    .progress-text { font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--teal); }
     .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 20px auto; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg2); border: 1px solid var(--border-hover); border-radius: 6px; padding: 10px 16px; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; z-index: 200; animation: fadeUp 0.3s ease; pointer-events: none; letter-spacing: 0.06em; }
@@ -181,10 +190,16 @@
     <div class="page active" id="page-playlists">
       <div class="page-header">
         <div class="section-label" style="flex:1;margin-right:20px">playlists</div>
-        <button class="btn btn-primary" onclick="openCreateModal()">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          NEW PLAYLIST
-        </button>
+        <div class="btn-row">
+          <button class="btn btn-teal" onclick="openImportModal()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            IMPORT
+          </button>
+          <button class="btn btn-primary" onclick="openCreateModal()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            NEW
+          </button>
+        </div>
       </div>
       <div class="playlist-grid" id="playlistGrid"><div class="spinner"></div></div>
     </div>
@@ -223,6 +238,37 @@
     home
   </a>
 </nav>
+
+<!-- Import Playlist Modal -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <h2>IMPORT PLAYLIST</h2>
+    <div class="modal-sub">
+      paste a <span>Spotify</span> or <span>YouTube</span> playlist URL to import all tracks into a new playlist.
+    </div>
+    <div class="form-group">
+      <label>Playlist URL</label>
+      <input type="url" id="importUrl" placeholder="https://open.spotify.com/playlist/... or youtube.com/playlist?list=..." autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Playlist Name (optional — uses source name if blank)</label>
+      <input type="text" id="importName" placeholder="leave blank to use original name" maxlength="60" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <div class="toggle-row">
+        <span>Private</span>
+        <div class="toggle" id="importPrivateToggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+    <div class="import-progress" id="importProgress">
+      <div class="progress-text" id="importProgressText">importing...</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('importModal')">CANCEL</button>
+      <button class="btn btn-teal" onclick="importPlaylist()" id="importBtn">IMPORT</button>
+    </div>
+  </div>
+</div>
 
 <!-- Create Modal -->
 <div class="modal-overlay" id="createModal">
@@ -322,7 +368,7 @@ function renderPlaylists() {
   if (!playlists.length) {
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke-width="1"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-      <p>no playlists yet.<br>create one to get started.</p>
+      <p>no playlists yet.<br>create one or import from spotify/youtube.</p>
     </div>`;
     return;
   }
@@ -346,6 +392,87 @@ function renderPlaylists() {
       </div>
     </div>
   `).join('');
+}
+
+function openImportModal() {
+  document.getElementById('importUrl').value = '';
+  document.getElementById('importName').value = '';
+  document.getElementById('importPrivateToggle').classList.remove('on');
+  document.getElementById('importProgress').classList.remove('show');
+  document.getElementById('importBtn').disabled = false;
+  document.getElementById('importBtn').textContent = 'IMPORT';
+  openModal('importModal');
+  setTimeout(() => document.getElementById('importUrl').focus(), 100);
+}
+
+async function importPlaylist() {
+  const url = document.getElementById('importUrl').value.trim();
+  const name = document.getElementById('importName').value.trim();
+  const priv = document.getElementById('importPrivateToggle').classList.contains('on');
+
+  if (!url) { toast('paste a playlist url', 'error'); return; }
+
+  const btn = document.getElementById('importBtn');
+  const progress = document.getElementById('importProgress');
+  const progressText = document.getElementById('importProgressText');
+
+  btn.disabled = true;
+  btn.textContent = 'IMPORTING...';
+  progress.classList.add('show');
+  progressText.textContent = 'fetching playlist...';
+
+  // Search the playlist URL to get tracks
+  const searchRes = await fetch(`/api/search?q=${encodeURIComponent(url)}`);
+  const searchData = await searchRes.json();
+
+  if (!searchData.results || searchData.results.length === 0) {
+    toast('no tracks found — check the url', 'error');
+    btn.disabled = false;
+    btn.textContent = 'IMPORT';
+    progress.classList.remove('show');
+    return;
+  }
+
+  const tracks = searchData.results;
+  const playlistName = name || 'imported playlist';
+
+  progressText.textContent = `creating playlist with ${tracks.length} tracks...`;
+
+  // Create playlist
+  const createRes = await fetch('/api/playlists', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: playlistName, private: priv }),
+  });
+
+  if (!createRes.ok) {
+    const err = await createRes.json();
+    toast(err.error || 'failed to create playlist', 'error');
+    btn.disabled = false;
+    btn.textContent = 'IMPORT';
+    progress.classList.remove('show');
+    return;
+  }
+
+  const { id: playlistId } = await createRes.json();
+
+  // Add all tracks
+  let added = 0;
+  for (const track of tracks) {
+    progressText.textContent = `adding tracks... ${added}/${tracks.length}`;
+    await fetch(`/api/playlists/${playlistId}/tracks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(track),
+    });
+    added++;
+  }
+
+  closeModal('importModal');
+  await loadPlaylists();
+  toast(`imported ${added} tracks into "${playlistName}"`, 'success');
+  btn.disabled = false;
+  btn.textContent = 'IMPORT';
 }
 
 function openCreateModal() {
