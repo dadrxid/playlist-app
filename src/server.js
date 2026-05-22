@@ -297,7 +297,7 @@ app.get('/api/spotify/playlists', requireAuth, async (req, res) => {
       playlists.push({
         id:          p.id,
         name:        p.name,
-        track_count: p.tracks.total,
+        track_count: p.tracks?.total ?? 0,
         image:       p.images?.[0]?.url || '',
         owner:       p.owner.display_name,
       });
