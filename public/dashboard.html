@@ -14,7 +14,6 @@
       --cyan-dim: rgba(0,212,255,0.15); --cyan-glow: rgba(0,212,255,0.06);
       --text: #c8e8f0; --text-dim: #5a8a9a;
       --border: rgba(0,212,255,0.12); --border-hover: rgba(0,212,255,0.35);
-      --danger: #a03030;
     }
     html, body { min-height: 100vh; background: var(--bg); font-family: 'Rajdhani', sans-serif; color: var(--text); }
     body::before {
@@ -46,7 +45,9 @@
     .nav-item:hover { background: var(--bg3); color: var(--text); border-color: var(--border); }
     .nav-item.active { background: rgba(0,212,255,0.08); border-color: rgba(0,212,255,0.2); color: var(--cyan); }
     .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.5; }
-    .sidebar-bottom { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
+    .sidebar-bottom { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+    .site-link { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--text-dim); text-decoration: none; padding: 4px 10px; letter-spacing: 0.1em; transition: color 0.15s; }
+    .site-link:hover { color: var(--teal); }
     .user-pill { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; background: var(--bg3); border: 1px solid var(--border); }
     .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--bg2); border: 1px solid rgba(0,212,255,0.2); overflow: hidden; flex-shrink: 0; }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -56,7 +57,7 @@
     .main { flex: 1; padding: 32px 36px; overflow-y: auto; }
     @media (max-width: 640px) {
       .sidebar { display: none; }
-      .main { padding: 20px 16px; }
+      .main { padding: 20px 16px; padding-bottom: 80px; }
       .playlist-grid { grid-template-columns: 1fr 1fr; }
       .mobile-nav { display: flex; }
     }
@@ -154,9 +155,6 @@
         <div class="logo-sub">playlists</div>
       </div>
     </div>
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      Profile
-    </a>
     <a class="nav-item" href="/profile">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       Profile
@@ -165,11 +163,8 @@
       <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
       My Playlists
     </a>
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      Profile
-    </a>
-    <a href="https://droidlab.org" target="_blank" style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--text-dim);text-decoration:none;padding:6px 10px;letter-spacing:0.1em;transition:color 0.15s;" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='var(--text-dim)'">// droidlab.org</a>
     <div class="sidebar-bottom">
+      <a href="https://droidlab.org" target="_blank" class="site-link">// droidlab.org</a>
       <div class="user-pill">
         <div class="avatar" id="sidebarAvatar">
           <svg viewBox="0 0 24 24" fill="none" stroke="#5a8a9a" stroke-width="2" style="padding:4px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -214,15 +209,14 @@
   </main>
 </div>
 
-<!-- Mobile Nav -->
 <nav class="mobile-nav">
-  <a href="#" class="active" onclick="showPage('playlists');return false;">
-    <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-    playlists
-  </a>
   <a href="/profile">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
     profile
+  </a>
+  <a href="#" class="active" onclick="showPage('playlists');return false;">
+    <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    playlists
   </a>
   <a href="https://droidlab.org" target="_blank">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
