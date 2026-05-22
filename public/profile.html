@@ -16,28 +16,20 @@
       --border: rgba(0,212,255,0.12); --border-hover: rgba(0,212,255,0.35);
     }
     html, body { min-height: 100vh; background: var(--bg); font-family: 'Rajdhani', sans-serif; color: var(--text); }
-    body::before {
-      content: ''; position: fixed; inset: 0;
-      background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,180,160,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,212,255,0.05) 0%, transparent 50%);
-      pointer-events: none; z-index: 0;
-    }
-    body::after {
-      content: ''; position: fixed; inset: 0;
-      background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
-      background-size: 40px 40px; pointer-events: none; z-index: 0;
-    }
+    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,180,160,0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,212,255,0.05) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+    body::after { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
     .app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
     .sidebar { width: 220px; flex-shrink: 0; background: rgba(10,21,32,0.95); border-right: 1px solid var(--border); padding: 24px 14px; display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100vh; }
     .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 8px 10px 20px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
-    .logo-icon { width: 34px; height: 34px; border: 1.5px solid var(--cyan); border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(0,212,255,0.2); flex-shrink: 0; }
+    .logo-icon { width: 34px; height: 34px; border: 1.5px solid var(--cyan); border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(0,212,255,0.2); flex-shrink: 0; animation: logoPulse 4s ease-in-out infinite; }
+    @keyframes logoPulse { 0%,100% { box-shadow: 0 0 12px rgba(0,212,255,0.2); } 50% { box-shadow: 0 0 20px rgba(0,212,255,0.4), 0 0 40px rgba(0,212,255,0.1); } }
     .logo-icon svg { width: 18px; height: 18px; stroke: var(--cyan); fill: none; stroke-width: 1.5; }
     .logo-name { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.08em; color: #fff; }
     .logo-name span { color: var(--cyan); }
     .logo-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; color: var(--text-dim); letter-spacing: 0.1em; }
     .logo-sub::before { content: '> '; color: var(--teal); }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; cursor: pointer; font-size: 0.95rem; font-weight: 500; letter-spacing: 0.04em; color: var(--text-dim); transition: all 0.15s; border: 1px solid transparent; text-decoration: none; }
-    .nav-item:hover { background: var(--bg3); color: var(--text); border-color: var(--border); }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; cursor: pointer; font-size: 0.95rem; font-weight: 500; letter-spacing: 0.04em; color: var(--text-dim); transition: all 0.2s; border: 1px solid transparent; text-decoration: none; }
+    .nav-item:hover { background: var(--bg3); color: var(--text); border-color: var(--border); transform: translateX(2px); }
     .nav-item.active { background: rgba(0,212,255,0.08); border-color: rgba(0,212,255,0.2); color: var(--cyan); }
     .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.5; }
     .sidebar-bottom { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
@@ -47,49 +39,75 @@
     .avatar-sm { width: 28px; height: 28px; border-radius: 50%; background: var(--bg2); border: 1px solid rgba(0,212,255,0.2); overflow: hidden; flex-shrink: 0; }
     .avatar-sm img { width: 100%; height: 100%; object-fit: cover; }
     .user-name { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.04em; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .logout-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 2px; transition: color 0.15s; }
-    .logout-btn:hover { color: #e06060; }
+    .logout-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 2px; transition: color 0.15s, transform 0.15s; }
+    .logout-btn:hover { color: #e06060; transform: rotate(10deg); }
     .main { flex: 1; padding: 32px 36px; overflow-y: auto; }
     @media (max-width: 640px) {
       .sidebar { display: none; }
       .main { padding: 20px 16px; padding-bottom: 80px; }
       .stats-grid { grid-template-columns: 1fr 1fr; }
       .mobile-nav { display: flex; }
+      .profile-header { flex-direction: column; text-align: center; }
+      .avatar-lg { margin: 0 auto; }
     }
-    .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,21,32,0.97); border-top: 1px solid var(--border); padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); z-index: 50; justify-content: space-around; }
-    .mobile-nav a { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-dim); text-decoration: none; font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; letter-spacing: 0.08em; }
-    .mobile-nav a svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+    .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: rgba(6,13,18,0.97); backdrop-filter: blur(10px); border-top: 1px solid var(--border); padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); z-index: 50; justify-content: space-around; }
+    .mobile-nav a { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-dim); text-decoration: none; font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; letter-spacing: 0.08em; transition: color 0.15s, transform 0.15s; }
+    .mobile-nav a svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.5; }
     .mobile-nav a.active { color: var(--cyan); }
+    .mobile-nav a:active { transform: scale(0.9); }
     .section-label { font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--teal); letter-spacing: 0.18em; text-transform: uppercase; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
     .section-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,180,160,0.3), transparent); }
-    .profile-header { display: flex; align-items: center; gap: 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 20px; position: relative; overflow: hidden; }
+
+    /* Profile header */
+    .profile-header { display: flex; align-items: center; gap: 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 28px; margin-bottom: 20px; position: relative; overflow: hidden; animation: slideIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
     .profile-header::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--cyan-glow), transparent 60%); pointer-events: none; }
-    .avatar-lg { width: 72px; height: 72px; border-radius: 50%; border: 2px solid rgba(0,212,255,0.3); overflow: hidden; flex-shrink: 0; box-shadow: 0 0 20px rgba(0,212,255,0.15); background: var(--bg3); }
+    .profile-header::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,212,255,0.2), transparent); }
+    .avatar-lg { width: 76px; height: 76px; border-radius: 50%; border: 2px solid rgba(0,212,255,0.3); overflow: hidden; flex-shrink: 0; box-shadow: 0 0 24px rgba(0,212,255,0.15), 0 0 48px rgba(0,212,255,0.05); background: var(--bg3); transition: transform 0.3s, box-shadow 0.3s; }
+    .avatar-lg:hover { transform: scale(1.05); box-shadow: 0 0 32px rgba(0,212,255,0.25); }
     .avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
     .profile-info { flex: 1; }
-    .profile-name { font-size: 1.6rem; font-weight: 700; letter-spacing: 0.06em; color: #fff; margin-bottom: 4px; }
+    .profile-name { font-size: 1.8rem; font-weight: 700; letter-spacing: 0.04em; color: #fff; margin-bottom: 4px; text-shadow: 0 0 20px rgba(0,212,255,0.2); }
     .profile-handle { font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--text-dim); letter-spacing: 0.1em; }
     .profile-handle::before { content: '@ '; color: var(--teal); }
-    .profile-joined { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-dim); margin-top: 8px; letter-spacing: 0.08em; }
+    .profile-joined { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-dim); margin-top: 10px; letter-spacing: 0.08em; }
     .profile-joined span { color: var(--cyan); }
+
+    /* Stats */
     .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; position: relative; overflow: hidden; }
+    .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; position: relative; overflow: hidden; transition: border-color 0.2s, transform 0.2s; animation: slideIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
     .stat-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--cyan-glow), transparent 60%); opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+    .stat-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
     .stat-card:hover::before { opacity: 1; }
-    .stat-icon { width: 32px; height: 32px; background: var(--cyan-dim); border: 1px solid rgba(0,212,255,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+    .stat-icon { width: 34px; height: 34px; background: var(--cyan-dim); border: 1px solid rgba(0,212,255,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; transition: transform 0.2s; }
+    .stat-card:hover .stat-icon { transform: scale(1.1) rotate(5deg); }
     .stat-icon svg { width: 15px; height: 15px; stroke: var(--cyan); fill: none; stroke-width: 1.5; }
-    .stat-value { font-size: 1.8rem; font-weight: 700; letter-spacing: 0.04em; color: #fff; line-height: 1; margin-bottom: 4px; }
-    .stat-label { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; }
-    .info-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
-    .info-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 16px; }
+    .stat-value { font-size: 2rem; font-weight: 700; letter-spacing: 0.02em; color: #fff; line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.12em; text-transform: uppercase; }
+
+    /* Account info */
+    .info-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; animation: slideIn 0.4s 0.2s cubic-bezier(0.16,1,0.3,1) both; }
+    .info-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 16px; transition: background 0.15s; }
     .info-row:last-child { border-bottom: none; padding-bottom: 0; }
     .info-row:first-child { padding-top: 0; }
     .info-key { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--teal); letter-spacing: 0.1em; text-transform: uppercase; flex-shrink: 0; }
-    .info-val { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.04em; color: var(--text); text-align: right; }
-    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 40px auto; }
+    .info-val { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.04em; color: var(--text); text-align: right; font-family: 'Share Tech Mono', monospace; }
+
+    /* Spotify notice */
+    .notice-card { background: rgba(30,215,96,0.04); border: 1px solid rgba(30,215,96,0.15); border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; display: flex; gap: 14px; align-items: flex-start; animation: slideIn 0.4s 0.25s cubic-bezier(0.16,1,0.3,1) both; }
+    .notice-icon { flex-shrink: 0; margin-top: 1px; opacity: 0.8; }
+    .notice-body { flex: 1; }
+    .notice-title { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.04em; color: #1ed760; margin-bottom: 6px; }
+    .notice-text { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-dim); line-height: 1.8; }
+    .notice-text a { color: #1ed760; text-decoration: none; border-bottom: 1px solid rgba(30,215,96,0.3); transition: border-color 0.15s; }
+    .notice-text a:hover { border-color: #1ed760; }
+
+    .spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 60px auto; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .content { animation: fadeUp 0.3s ease both; }
+    .content { animation: slideIn 0.35s cubic-bezier(0.16,1,0.3,1) both; }
   </style>
 </head>
 <body>
@@ -129,10 +147,11 @@
   <main class="main">
     <div id="loading"><div class="spinner"></div></div>
     <div id="content" class="content" style="display:none">
+
       <div class="section-label">profile</div>
       <div class="profile-header">
         <div class="avatar-lg" id="profileAvatar">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#5a8a9a" stroke-width="1.5" style="padding:16px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5a8a9a" stroke-width="1.5" style="padding:18px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
         </div>
         <div class="profile-info">
           <div class="profile-name" id="profileName">—</div>
@@ -175,6 +194,21 @@
           <span class="info-val" id="infoJoined">—</span>
         </div>
       </div>
+
+      <div class="section-label">spotify</div>
+      <div class="notice-card">
+        <div class="notice-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 0 1-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 0 1-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 0 1 .207.857zm1.224-2.722a.78.78 0 0 1-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 0 1-.973-.519.781.781 0 0 1 .52-.973c3.632-1.102 8.147-.568 11.233 1.329a.78.78 0 0 1 .257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 1 1-.543-1.794c3.526-1.07 9.389-.863 13.098 1.329a.937.937 0 0 1-.937 1.622z"/></svg>
+        </div>
+        <div class="notice-body">
+          <div class="notice-title">Spotify import unavailable</div>
+          <div class="notice-text">
+            due to spotify api changes in february 2026, direct spotify playlist importing is no longer supported for third-party apps in development mode.<br><br>
+            to import your spotify playlists, convert them to youtube first using <a href="https://www.tunemymusic.com/transfer/spotify-to-youtube" target="_blank">tunemymusic.com</a> (free, takes under a minute), then use the import button on the playlists page to paste the youtube url.
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 </div>

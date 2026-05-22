@@ -16,35 +16,25 @@
       --border: rgba(0,212,255,0.12); --border-hover: rgba(0,212,255,0.35);
     }
     html, body { min-height: 100vh; background: var(--bg); font-family: 'Rajdhani', sans-serif; color: var(--text); }
-    body::before {
-      content: ''; position: fixed; inset: 0;
-      background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,180,160,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,212,255,0.05) 0%, transparent 50%);
-      pointer-events: none; z-index: 0;
-    }
-    body::after {
-      content: ''; position: fixed; inset: 0;
-      background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
-      background-size: 40px 40px; pointer-events: none; z-index: 0;
-    }
+    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,180,160,0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,212,255,0.05) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+    body::after { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
     .app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
-    .sidebar {
-      width: 220px; flex-shrink: 0; background: rgba(10,21,32,0.95);
-      border-right: 1px solid var(--border); padding: 24px 14px;
-      display: flex; flex-direction: column; gap: 4px;
-      position: sticky; top: 0; height: 100vh;
-    }
+
+    /* Sidebar */
+    .sidebar { width: 220px; flex-shrink: 0; background: rgba(10,21,32,0.95); border-right: 1px solid var(--border); padding: 24px 14px; display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100vh; transition: transform 0.3s ease; }
     .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 8px 10px 20px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
-    .logo-icon { width: 34px; height: 34px; border: 1.5px solid var(--cyan); border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(0,212,255,0.2); flex-shrink: 0; }
+    .logo-icon { width: 34px; height: 34px; border: 1.5px solid var(--cyan); border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(0,212,255,0.2), 0 0 24px rgba(0,212,255,0.05); flex-shrink: 0; animation: logoPulse 4s ease-in-out infinite; }
+    @keyframes logoPulse { 0%,100% { box-shadow: 0 0 12px rgba(0,212,255,0.2), 0 0 24px rgba(0,212,255,0.05); } 50% { box-shadow: 0 0 20px rgba(0,212,255,0.4), 0 0 40px rgba(0,212,255,0.1); } }
     .logo-icon svg { width: 18px; height: 18px; stroke: var(--cyan); fill: none; stroke-width: 1.5; }
     .logo-name { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.08em; color: #fff; }
     .logo-name span { color: var(--cyan); }
     .logo-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; color: var(--text-dim); letter-spacing: 0.1em; }
     .logo-sub::before { content: '> '; color: var(--teal); }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; cursor: pointer; font-size: 0.95rem; font-weight: 500; letter-spacing: 0.04em; color: var(--text-dim); transition: all 0.15s; border: 1px solid transparent; text-decoration: none; }
-    .nav-item:hover { background: var(--bg3); color: var(--text); border-color: var(--border); }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; cursor: pointer; font-size: 0.95rem; font-weight: 500; letter-spacing: 0.04em; color: var(--text-dim); transition: all 0.2s; border: 1px solid transparent; text-decoration: none; }
+    .nav-item:hover { background: var(--bg3); color: var(--text); border-color: var(--border); transform: translateX(2px); }
     .nav-item.active { background: rgba(0,212,255,0.08); border-color: rgba(0,212,255,0.2); color: var(--cyan); }
-    .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.5; }
+    .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.5; transition: transform 0.2s; }
+    .nav-item:hover svg { transform: scale(1.1); }
     .sidebar-bottom { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
     .site-link { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--text-dim); text-decoration: none; padding: 4px 10px; letter-spacing: 0.1em; transition: color 0.15s; }
     .site-link:hover { color: var(--teal); }
@@ -52,63 +42,95 @@
     .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--bg2); border: 1px solid rgba(0,212,255,0.2); overflow: hidden; flex-shrink: 0; }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .user-name { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.04em; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .logout-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 2px; transition: color 0.15s; }
-    .logout-btn:hover { color: #e06060; }
+    .logout-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 2px; transition: color 0.15s, transform 0.15s; }
+    .logout-btn:hover { color: #e06060; transform: rotate(10deg); }
+
+    /* Main */
     .main { flex: 1; padding: 32px 36px; overflow-y: auto; }
+
+    /* Mobile */
     @media (max-width: 640px) {
       .sidebar { display: none; }
       .main { padding: 20px 16px; padding-bottom: 80px; }
-      .playlist-grid { grid-template-columns: 1fr 1fr; }
+      .playlist-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
       .mobile-nav { display: flex; }
-      .btn-row { flex-wrap: wrap; }
+      .btn-row { gap: 6px; }
+      .btn span { display: none; }
     }
-    .mobile-nav {
-      display: none; position: fixed; bottom: 0; left: 0; right: 0;
-      background: rgba(10,21,32,0.97); border-top: 1px solid var(--border);
-      padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
-      z-index: 50; justify-content: space-around;
-    }
-    .mobile-nav a { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-dim); text-decoration: none; font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; letter-spacing: 0.08em; }
-    .mobile-nav a svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+    .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: rgba(6,13,18,0.97); backdrop-filter: blur(10px); border-top: 1px solid var(--border); padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); z-index: 50; justify-content: space-around; }
+    .mobile-nav a { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-dim); text-decoration: none; font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; letter-spacing: 0.08em; transition: color 0.15s, transform 0.15s; }
+    .mobile-nav a svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.5; }
     .mobile-nav a.active { color: var(--cyan); }
+    .mobile-nav a:active { transform: scale(0.9); }
+
+    /* Pages */
     .page { display: none; }
-    .page.active { display: block; animation: fadeUp 0.3s ease both; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .page.active { display: block; animation: pageIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes pageIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Headers */
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; gap: 12px; }
-    .btn-row { display: flex; gap: 8px; }
+    .btn-row { display: flex; gap: 8px; flex-shrink: 0; }
     .section-label { font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--teal); letter-spacing: 0.18em; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
     .section-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,180,160,0.3), transparent); }
-    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.95rem; letter-spacing: 0.06em; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.95rem; letter-spacing: 0.06em; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; position: relative; overflow: hidden; }
+    .btn::after { content: ''; position: absolute; inset: 0; background: white; opacity: 0; transition: opacity 0.15s; }
+    .btn:active::after { opacity: 0.05; }
     .btn-primary { background: var(--cyan-dim); color: var(--cyan); border-color: rgba(0,212,255,0.3); }
-    .btn-primary:hover { background: rgba(0,212,255,0.25); border-color: var(--cyan); transform: translateY(-1px); }
+    .btn-primary:hover { background: rgba(0,212,255,0.25); border-color: var(--cyan); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,212,255,0.15); }
     .btn-ghost { background: transparent; color: var(--text-dim); border-color: var(--border); }
     .btn-ghost:hover { color: var(--text); border-color: var(--border-hover); background: var(--bg3); }
     .btn-teal { background: rgba(0,180,160,0.1); color: var(--teal); border-color: rgba(0,180,160,0.3); }
-    .btn-teal:hover { background: rgba(0,180,160,0.2); border-color: var(--teal); transform: translateY(-1px); }
-    .playlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-    .playlist-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
-    .playlist-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--cyan-glow), transparent 60%); opacity: 0; transition: opacity 0.2s; }
-    .playlist-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+    .btn-teal:hover { background: rgba(0,180,160,0.2); border-color: var(--teal); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,180,160,0.15); }
+
+    /* Playlist grid */
+    .playlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .playlist-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden; animation: cardIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .playlist-card:nth-child(1) { animation-delay: 0.05s; }
+    .playlist-card:nth-child(2) { animation-delay: 0.1s; }
+    .playlist-card:nth-child(3) { animation-delay: 0.15s; }
+    .playlist-card:nth-child(4) { animation-delay: 0.2s; }
+    .playlist-card:nth-child(5) { animation-delay: 0.25s; }
+    .playlist-card:nth-child(6) { animation-delay: 0.3s; }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .playlist-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,212,255,0.06), transparent 60%); opacity: 0; transition: opacity 0.25s; }
+    .playlist-card:hover { border-color: var(--border-hover); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,212,255,0.06); }
     .playlist-card:hover::before { opacity: 1; }
-    .playlist-card-icon { width: 40px; height: 40px; background: var(--cyan-dim); border: 1px solid rgba(0,212,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; color: var(--cyan); }
+    .playlist-card:active { transform: translateY(-1px); }
+    .playlist-card-icon { width: 42px; height: 42px; background: var(--cyan-dim); border: 1px solid rgba(0,212,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; color: var(--cyan); transition: transform 0.2s; }
+    .playlist-card:hover .playlist-card-icon { transform: scale(1.08); }
     .playlist-card-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; }
     .playlist-card-name { font-size: 1rem; font-weight: 600; letter-spacing: 0.04em; color: #e8f4f8; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .playlist-card-meta { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
     .badge { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; padding: 1px 7px; border-radius: 3px; background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.15); color: var(--cyan); }
-    .badge.private { background: rgba(160,48,48,0.15); border-color: rgba(160,48,48,0.3); color: #e06060; }
-    .card-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
-    .playlist-card:hover .card-actions { opacity: 1; }
+    .card-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s, transform 0.15s; transform: translateY(-4px); }
+    .playlist-card:hover .card-actions { opacity: 1; transform: translateY(0); }
     .icon-btn { background: var(--bg3); border: 1px solid var(--border); color: var(--text-dim); width: 26px; height: 26px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; }
     .icon-btn:hover { color: var(--text); border-color: var(--border-hover); }
-    .icon-btn.danger:hover { color: #e06060; border-color: rgba(160,48,48,0.4); }
-    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
-    .empty-state svg { opacity: 0.15; margin-bottom: 16px; stroke: var(--cyan); }
-    .empty-state p { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; }
-    #backBtn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em; margin-bottom: 20px; transition: color 0.15s; }
-    #backBtn:hover { color: var(--cyan); }
+    .icon-btn.danger:hover { color: #e06060; border-color: rgba(160,48,48,0.4); background: rgba(160,48,48,0.1); }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 80px 20px; color: var(--text-dim); animation: pageIn 0.4s ease both; }
+    .empty-state svg { opacity: 0.1; margin-bottom: 16px; stroke: var(--cyan); animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .empty-state p { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; line-height: 1.8; }
+
+    /* Back button */
+    #backBtn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em; margin-bottom: 20px; transition: all 0.15s; }
+    #backBtn:hover { color: var(--cyan); transform: translateX(-3px); }
+
+    /* Tracks */
     .track-list { display: flex; flex-direction: column; gap: 6px; }
-    .track-item { display: flex; align-items: center; gap: 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; transition: all 0.15s; }
-    .track-item:hover { border-color: var(--border-hover); }
+    .track-item { display: flex; align-items: center; gap: 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; transition: all 0.2s; animation: trackIn 0.3s ease both; }
+    .track-item:nth-child(1) { animation-delay: 0.03s; }
+    .track-item:nth-child(2) { animation-delay: 0.06s; }
+    .track-item:nth-child(3) { animation-delay: 0.09s; }
+    .track-item:nth-child(4) { animation-delay: 0.12s; }
+    .track-item:nth-child(5) { animation-delay: 0.15s; }
+    @keyframes trackIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+    .track-item:hover { border-color: var(--border-hover); background: rgba(10,21,32,0.8); }
     .track-thumb { width: 40px; height: 40px; border-radius: 4px; background: var(--bg3); object-fit: cover; flex-shrink: 0; }
     .track-info { flex: 1; min-width: 0; }
     .track-title { font-size: 0.95rem; font-weight: 600; letter-spacing: 0.03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e8f4f8; }
@@ -117,39 +139,59 @@
     .track-source.youtube { background: rgba(255,60,60,0.1); color: #e06060; border: 1px solid rgba(255,60,60,0.2); }
     .track-source.spotify { background: rgba(30,215,96,0.1); color: #1ed760; border: 1px solid rgba(30,215,96,0.2); }
     .track-duration { font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--text-dim); flex-shrink: 0; }
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
-    .modal-overlay.open { display: flex; }
-    .modal { background: var(--bg2); border: 1px solid var(--border-hover); border-radius: 10px; padding: 28px; width: min(480px, calc(100vw - 32px)); animation: modalIn 0.2s ease both; }
-    @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    /* Modals */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(6px); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+    .modal-overlay.open { display: flex; animation: overlayIn 0.2s ease both; }
+    @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal { background: var(--bg2); border: 1px solid var(--border-hover); border-radius: 12px; padding: 28px; width: min(480px, 100%); animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.92) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     .modal h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 6px; color: #e8f4f8; }
-    .modal-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-dim); margin-bottom: 20px; line-height: 1.6; }
-    .modal-sub span { color: var(--teal); }
+    .modal-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-dim); margin-bottom: 20px; line-height: 1.7; }
+    .modal-sub a { color: var(--teal); text-decoration: none; border-bottom: 1px solid rgba(0,180,160,0.3); transition: border-color 0.15s; }
+    .modal-sub a:hover { border-color: var(--teal); }
+    .modal-sub .highlight { color: var(--cyan); }
+
+    /* Spotify notice */
+    .spotify-notice { background: rgba(30,215,96,0.05); border: 1px solid rgba(30,215,96,0.15); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; gap: 12px; align-items: flex-start; }
+    .spotify-notice-icon { flex-shrink: 0; margin-top: 2px; }
+    .spotify-notice-text { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-dim); line-height: 1.7; }
+    .spotify-notice-text strong { color: #1ed760; display: block; margin-bottom: 4px; }
+    .spotify-notice-text a { color: #1ed760; text-decoration: none; border-bottom: 1px solid rgba(30,215,96,0.3); }
+    .spotify-notice-text a:hover { border-color: #1ed760; }
+
     .form-group { margin-bottom: 14px; }
     label { display: block; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--teal); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
-    input[type="text"], input[type="search"], input[type="url"] { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 9px 12px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; letter-spacing: 0.04em; outline: none; transition: border-color 0.15s; }
-    input:focus { border-color: rgba(0,212,255,0.4); }
-    .toggle-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.95rem; font-weight: 500; letter-spacing: 0.04em; }
-    .toggle { width: 38px; height: 20px; background: var(--bg3); border-radius: 10px; position: relative; cursor: pointer; transition: background 0.2s; border: 1px solid var(--border); }
-    .toggle.on { background: rgba(0,180,160,0.3); border-color: var(--teal); }
-    .toggle::after { content: ''; position: absolute; width: 14px; height: 14px; background: var(--text-dim); border-radius: 50%; top: 2px; left: 2px; transition: transform 0.2s, background 0.2s; }
-    .toggle.on::after { transform: translateX(18px); background: var(--teal); }
+    input[type="text"], input[type="search"], input[type="url"] { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; letter-spacing: 0.04em; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    input:focus { border-color: rgba(0,212,255,0.4); box-shadow: 0 0 0 3px rgba(0,212,255,0.06); }
     .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
-    .search-results { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .search-results { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; max-height: 300px; overflow-y: auto; }
     .search-result { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; cursor: pointer; transition: all 0.15s; }
-    .search-result:hover { border-color: var(--border-hover); }
+    .search-result:hover { border-color: var(--border-hover); background: rgba(14,31,46,0.8); transform: translateX(2px); }
     .search-result img { width: 38px; height: 38px; border-radius: 3px; object-fit: cover; flex-shrink: 0; }
     .result-info { flex: 1; min-width: 0; }
     .result-title { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e8f4f8; }
     .result-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--text-dim); }
-    .add-icon { color: var(--teal); flex-shrink: 0; }
-    .import-progress { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 14px; margin-top: 12px; display: none; }
-    .import-progress.show { display: block; }
+    .add-icon { color: var(--teal); flex-shrink: 0; transition: transform 0.15s; }
+    .search-result:hover .add-icon { transform: scale(1.2); }
+    .import-progress { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; margin-top: 12px; display: none; }
+    .import-progress.show { display: block; animation: pageIn 0.2s ease both; }
     .progress-text { font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--teal); }
-    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 20px auto; }
+    .progress-bar { height: 2px; background: var(--border); border-radius: 1px; margin-top: 8px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--cyan)); border-radius: 1px; transition: width 0.3s ease; width: 0%; }
+
+    /* Spinner */
+    .spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 40px auto; }
+    .spinner-sm { width: 14px; height: 14px; border: 2px solid rgba(0,212,255,0.2); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg2); border: 1px solid var(--border-hover); border-radius: 6px; padding: 10px 16px; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; z-index: 200; animation: fadeUp 0.3s ease; pointer-events: none; letter-spacing: 0.06em; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg2); border: 1px solid var(--border-hover); border-radius: 8px; padding: 12px 18px; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; z-index: 200; letter-spacing: 0.06em; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(10px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
     .toast.success { border-color: rgba(0,180,160,0.4); color: var(--teal); }
     .toast.error { border-color: rgba(160,48,48,0.4); color: #e06060; }
+    .toast.info { border-color: rgba(0,212,255,0.3); color: var(--cyan); }
+    @media (max-width: 640px) { .toast { bottom: 80px; left: 16px; right: 16px; } }
   </style>
 </head>
 <body>
@@ -189,15 +231,15 @@
   <main class="main">
     <div class="page active" id="page-playlists">
       <div class="page-header">
-        <div class="section-label" style="flex:1;margin-right:20px">playlists</div>
+        <div class="section-label" style="flex:1;margin-right:16px">playlists</div>
         <div class="btn-row">
           <button class="btn btn-teal" onclick="openImportModal()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            IMPORT
+            <span>IMPORT</span>
           </button>
           <button class="btn btn-primary" onclick="openCreateModal()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            NEW
+            <span>NEW</span>
           </button>
         </div>
       </div>
@@ -207,16 +249,16 @@
     <div class="page" id="page-tracks">
       <button id="backBtn" onclick="showPage('playlists')">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-        &lt; BACK TO PLAYLISTS
+        &lt; BACK
       </button>
       <div class="page-header">
-        <div>
-          <div class="section-label" id="trackPageTitle">playlist</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--text-dim);margin-top:4px" id="trackPageMeta"></div>
+        <div style="min-width:0">
+          <div class="section-label" id="trackPageTitle" style="margin-bottom:4px">playlist</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--text-dim)" id="trackPageMeta"></div>
         </div>
         <button class="btn btn-primary" onclick="openAddTrackModal()">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          ADD TRACK
+          <span>ADD</span>
         </button>
       </div>
       <div class="track-list" id="trackList"></div>
@@ -239,29 +281,31 @@
   </a>
 </nav>
 
-<!-- Import Playlist Modal -->
+<!-- Import Modal -->
 <div class="modal-overlay" id="importModal">
   <div class="modal">
     <h2>IMPORT PLAYLIST</h2>
-    <div class="modal-sub">
-      paste a <span>Spotify</span> (public only) or <span>YouTube</span> playlist URL to import all tracks into a new playlist.
-    </div>
-    <div class="form-group">
-      <label>Playlist URL</label>
-      <input type="url" id="importUrl" placeholder="https://open.spotify.com/playlist/... or youtube.com/playlist?list=..." autocomplete="off">
-    </div>
-    <div class="form-group">
-      <label>Playlist Name (optional — uses source name if blank)</label>
-      <input type="text" id="importName" placeholder="leave blank to use original name" maxlength="60" autocomplete="off">
-    </div>
-    <div class="form-group">
-      <div class="toggle-row">
-        <span>Private</span>
-        <div class="toggle" id="importPrivateToggle" onclick="this.classList.toggle('on')"></div>
+    <div class="modal-sub">paste a <span class="highlight">YouTube</span> playlist URL to import all tracks into a new playlist.</div>
+    <div class="spotify-notice">
+      <div class="spotify-notice-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 0 1-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 0 1-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 0 1 .207.857zm1.224-2.722a.78.78 0 0 1-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 0 1-.973-.519.781.781 0 0 1 .52-.973c3.632-1.102 8.147-.568 11.233 1.329a.78.78 0 0 1 .257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 1 1-.543-1.794c3.526-1.07 9.389-.863 13.098 1.329a.937.937 0 0 1-.937 1.622z"/></svg>
       </div>
+      <div class="spotify-notice-text">
+        <strong>spotify playlists?</strong>
+        due to spotify api changes in february 2026, spotify playlist importing is no longer supported. convert your spotify playlist to youtube first using <a href="https://www.tunemymusic.com/transfer/spotify-to-youtube" target="_blank">tunemymusic.com</a> — it's free and takes under a minute.
+      </div>
+    </div>
+    <div class="form-group">
+      <label>YouTube Playlist URL</label>
+      <input type="url" id="importUrl" placeholder="https://www.youtube.com/playlist?list=..." autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Playlist Name (optional)</label>
+      <input type="text" id="importName" placeholder="leave blank to use playlist title" maxlength="60" autocomplete="off">
     </div>
     <div class="import-progress" id="importProgress">
       <div class="progress-text" id="importProgressText">importing...</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('importModal')">CANCEL</button>
@@ -278,12 +322,6 @@
       <label>Name</label>
       <input type="text" id="newPlaylistName" placeholder="e.g. late night drives" maxlength="60" autocomplete="off">
     </div>
-    <div class="form-group">
-      <div class="toggle-row">
-        <span>Private</span>
-        <div class="toggle on" id="privateToggle" onclick="this.classList.toggle('on')"></div>
-      </div>
-    </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('createModal')">CANCEL</button>
       <button class="btn btn-primary" onclick="createPlaylist()">CREATE</button>
@@ -299,12 +337,6 @@
       <label>Name</label>
       <input type="text" id="editPlaylistName" maxlength="60" autocomplete="off">
     </div>
-    <div class="form-group">
-      <div class="toggle-row">
-        <span>Private</span>
-        <div class="toggle" id="editPrivateToggle" onclick="this.classList.toggle('on')"></div>
-      </div>
-    </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('editModal')">CANCEL</button>
       <button class="btn btn-primary" onclick="saveEdit()">SAVE</button>
@@ -317,7 +349,7 @@
   <div class="modal">
     <h2>ADD TRACK</h2>
     <div class="form-group" style="display:flex;gap:8px">
-      <input type="search" id="trackSearch" placeholder="Search YouTube or paste Spotify/YouTube URL…" style="flex:1" autocomplete="off">
+      <input type="search" id="trackSearch" placeholder="Search YouTube or paste URL…" style="flex:1" autocomplete="off">
       <button class="btn btn-primary" onclick="searchTracks()">SEARCH</button>
     </div>
     <div id="searchResults"></div>
@@ -346,9 +378,7 @@ async function init() {
 function renderUser(user) {
   document.getElementById('sidebarName').textContent = user.global_name || user.username;
   const avatarEl = document.getElementById('sidebarAvatar');
-  if (user.avatar) {
-    avatarEl.innerHTML = `<img src="https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar}.png?size=64" alt="">`;
-  }
+  if (user.avatar) avatarEl.innerHTML = `<img src="https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar}.png?size=64" alt="">`;
 }
 
 function showPage(id) {
@@ -367,8 +397,8 @@ function renderPlaylists() {
   const grid = document.getElementById('playlistGrid');
   if (!playlists.length) {
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke-width="1"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-      <p>no playlists yet.<br>create one or import from spotify/youtube.</p>
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke-width="0.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <p>no playlists yet.<br>create one or import from youtube.</p>
     </div>`;
     return;
   }
@@ -388,7 +418,7 @@ function renderPlaylists() {
       <div class="playlist-card-name">${escHtml(p.name)}</div>
       <div class="playlist-card-meta">
         <span>${p.track_count} track${p.track_count === 1 ? '' : 's'}</span>
-        <span class="badge ${p.private ? 'private' : ''}">${p.private ? 'private' : 'public'}</span>
+        <span class="badge">${p.private ? 'private' : 'public'}</span>
       </div>
     </div>
   `).join('');
@@ -397,98 +427,89 @@ function renderPlaylists() {
 function openImportModal() {
   document.getElementById('importUrl').value = '';
   document.getElementById('importName').value = '';
-  document.getElementById('importPrivateToggle').classList.remove('on');
   document.getElementById('importProgress').classList.remove('show');
+  document.getElementById('progressFill').style.width = '0%';
   document.getElementById('importBtn').disabled = false;
-  document.getElementById('importBtn').textContent = 'IMPORT';
+  document.getElementById('importBtn').innerHTML = 'IMPORT';
   openModal('importModal');
-  setTimeout(() => document.getElementById('importUrl').focus(), 100);
+  setTimeout(() => document.getElementById('importUrl').focus(), 150);
 }
 
 async function importPlaylist() {
   const url = document.getElementById('importUrl').value.trim();
   const name = document.getElementById('importName').value.trim();
-  const priv = document.getElementById('importPrivateToggle').classList.contains('on');
-
-  if (!url) { toast('paste a playlist url', 'error'); return; }
-
+  if (!url) { toast('paste a youtube playlist url', 'error'); return; }
+  if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
+    toast('only youtube playlist urls are supported', 'error');
+    return;
+  }
   const btn = document.getElementById('importBtn');
   const progress = document.getElementById('importProgress');
   const progressText = document.getElementById('importProgressText');
-
+  const progressFill = document.getElementById('progressFill');
   btn.disabled = true;
-  btn.textContent = 'IMPORTING...';
+  btn.innerHTML = '<div class="spinner-sm"></div> IMPORTING...';
   progress.classList.add('show');
   progressText.textContent = 'fetching playlist...';
-
-  // Search the playlist URL to get tracks
+  progressFill.style.width = '20%';
   const searchRes = await fetch(`/api/search?q=${encodeURIComponent(url)}`);
   const searchData = await searchRes.json();
-
   if (!searchData.results || searchData.results.length === 0) {
     toast('no tracks found — check the url', 'error');
     btn.disabled = false;
-    btn.textContent = 'IMPORT';
+    btn.innerHTML = 'IMPORT';
     progress.classList.remove('show');
     return;
   }
-
   const tracks = searchData.results;
   const playlistName = name || 'imported playlist';
-
-  progressText.textContent = `creating playlist with ${tracks.length} tracks...`;
-
-  // Create playlist
+  progressText.textContent = `creating playlist...`;
+  progressFill.style.width = '40%';
   const createRes = await fetch('/api/playlists', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: playlistName, private: priv }),
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: playlistName, private: false }),
   });
-
   if (!createRes.ok) {
     const err = await createRes.json();
     toast(err.error || 'failed to create playlist', 'error');
     btn.disabled = false;
-    btn.textContent = 'IMPORT';
+    btn.innerHTML = 'IMPORT';
     progress.classList.remove('show');
     return;
   }
-
   const { id: playlistId } = await createRes.json();
-
-  // Add all tracks
   let added = 0;
   for (const track of tracks) {
-    progressText.textContent = `adding tracks... ${added}/${tracks.length}`;
+    const pct = 40 + Math.round((added / tracks.length) * 55);
+    progressFill.style.width = pct + '%';
+    progressText.textContent = `adding tracks... ${added + 1}/${tracks.length}`;
     await fetch(`/api/playlists/${playlistId}/tracks`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(track),
     });
     added++;
   }
-
+  progressFill.style.width = '100%';
+  await new Promise(r => setTimeout(r, 300));
   closeModal('importModal');
   await loadPlaylists();
   toast(`imported ${added} tracks into "${playlistName}"`, 'success');
   btn.disabled = false;
-  btn.textContent = 'IMPORT';
+  btn.innerHTML = 'IMPORT';
 }
 
 function openCreateModal() {
   document.getElementById('newPlaylistName').value = '';
-  document.getElementById('privateToggle').classList.add('on');
   openModal('createModal');
-  setTimeout(() => document.getElementById('newPlaylistName').focus(), 100);
+  setTimeout(() => document.getElementById('newPlaylistName').focus(), 150);
 }
 
 async function createPlaylist() {
   const name = document.getElementById('newPlaylistName').value.trim();
   if (!name) return;
-  const priv = document.getElementById('privateToggle').classList.contains('on');
   const res = await fetch('/api/playlists', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, private: priv }),
+    body: JSON.stringify({ name, private: false }),
   });
   if (res.ok) { closeModal('createModal'); await loadPlaylists(); toast('playlist created', 'success'); }
   else { const err = await res.json(); toast(err.error || 'failed', 'error'); }
@@ -499,19 +520,16 @@ function editPlaylist(id) {
   if (!playlist) return;
   editingPlaylistId = id;
   document.getElementById('editPlaylistName').value = playlist.name;
-  const toggle = document.getElementById('editPrivateToggle');
-  if (playlist.private) { toggle.classList.add('on'); } else { toggle.classList.remove('on'); }
   openModal('editModal');
-  setTimeout(() => document.getElementById('editPlaylistName').focus(), 100);
+  setTimeout(() => document.getElementById('editPlaylistName').focus(), 150);
 }
 
 async function saveEdit() {
   const name = document.getElementById('editPlaylistName').value.trim();
   if (!name) return;
-  const priv = document.getElementById('editPrivateToggle').classList.contains('on');
   const res = await fetch(`/api/playlists/${editingPlaylistId}`, {
     method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, private: priv }),
+    body: JSON.stringify({ name, private: false }),
   });
   if (res.ok) { closeModal('editModal'); await loadPlaylists(); toast('playlist updated', 'success'); }
   else { toast('failed to update', 'error'); }
@@ -527,7 +545,7 @@ async function openPlaylist(id) {
   currentPlaylistId = id;
   const playlist = playlists.find(p => p.id === id);
   document.getElementById('trackPageTitle').textContent = playlist.name;
-  document.getElementById('trackPageMeta').textContent = `${playlist.track_count} track${playlist.track_count === 1 ? '' : 's'} · ${playlist.private ? 'private' : 'public'}`;
+  document.getElementById('trackPageMeta').textContent = `${playlist.track_count} track${playlist.track_count === 1 ? '' : 's'}`;
   showPage('tracks');
   await loadTracks(id);
 }
@@ -537,7 +555,7 @@ async function loadTracks(id) {
   list.innerHTML = '<div class="spinner"></div>';
   const res = await fetch(`/api/playlists/${id}/tracks`);
   const tracks = await res.json();
-  if (!tracks.length) { list.innerHTML = `<div class="empty-state"><p>no tracks yet. add some!</p></div>`; return; }
+  if (!tracks.length) { list.innerHTML = `<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke-width="1"><path d="M9 18V5l12-2v13"/></svg><p>no tracks yet.<br>add some!</p></div>`; return; }
   list.innerHTML = tracks.map(t => `
     <div class="track-item" id="track-${t.id}">
       ${t.thumbnail ? `<img class="track-thumb" src="${escHtml(t.thumbnail)}" alt="">` : `<div class="track-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--text-dim)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/></svg></div>`}
@@ -563,7 +581,7 @@ function openAddTrackModal() {
   document.getElementById('trackSearch').value = '';
   document.getElementById('searchResults').innerHTML = '';
   openModal('addTrackModal');
-  setTimeout(() => document.getElementById('trackSearch').focus(), 100);
+  setTimeout(() => document.getElementById('trackSearch').focus(), 150);
 }
 
 async function searchTracks() {
@@ -573,7 +591,7 @@ async function searchTracks() {
   resultsEl.innerHTML = '<div class="spinner"></div>';
   const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
   const data = await res.json();
-  if (!data.results?.length) { resultsEl.innerHTML = '<p style="color:var(--text-dim);font-family:\'Share Tech Mono\',monospace;font-size:0.7rem;text-align:center;padding:16px">no results found</p>'; return; }
+  if (!data.results?.length) { resultsEl.innerHTML = '<p style="color:var(--text-dim);font-family:\'Share Tech Mono\',monospace;font-size:0.7rem;text-align:center;padding:20px">no results found</p>'; return; }
   resultsEl.innerHTML = `<div class="search-results">${data.results.map(r => `
     <div class="search-result" onclick='addTrack(${JSON.stringify(r)})'>
       <img src="${escHtml(r.thumbnail || '')}" alt="" onerror="this.style.display='none'">
@@ -595,7 +613,7 @@ async function addTrack(track) {
     toast(`added: ${track.title}`, 'success');
     await loadTracks(currentPlaylistId);
     const p = playlists.find(p => p.id === currentPlaylistId);
-    if (p) { p.track_count++; document.getElementById('trackPageMeta').textContent = `${p.track_count} track${p.track_count === 1 ? '' : 's'} · ${p.private ? 'private' : 'public'}`; }
+    if (p) { p.track_count++; document.getElementById('trackPageMeta').textContent = `${p.track_count} track${p.track_count === 1 ? '' : 's'}`; }
   } else { toast('failed to add track', 'error'); }
 }
 
@@ -604,7 +622,7 @@ async function logout() {
   window.location.href = '/';
 }
 
-function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 document.addEventListener('keydown', e => {
@@ -616,15 +634,8 @@ document.addEventListener('keydown', e => {
 
 document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); }));
 
-function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function formatDuration(secs) {
-  if (!secs) return '';
-  const m = Math.floor(secs / 60), s = secs % 60;
-  return `${m}:${String(s).padStart(2,'0')}`;
-}
+function escHtml(str) { return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function formatDuration(secs) { if (!secs) return ''; const m = Math.floor(secs / 60), s = secs % 60; return `${m}:${String(s).padStart(2,'0')}`; }
 
 let toastTimer;
 function toast(msg, type = 'success') {
@@ -635,7 +646,7 @@ function toast(msg, type = 'success') {
   el.className = `toast ${type}`;
   el.textContent = msg;
   document.body.appendChild(el);
-  toastTimer = setTimeout(() => el.remove(), 3000);
+  toastTimer = setTimeout(() => el.remove(), 3500);
 }
 
 init();
