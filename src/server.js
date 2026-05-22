@@ -51,6 +51,13 @@ db.exec(`
     thumbnail   TEXT DEFAULT '',
     added_at    INTEGER DEFAULT (unixepoch())
   );
+  CREATE TABLE IF NOT EXISTS play_events (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    discord_id  TEXT NOT NULL REFERENCES users(discord_id),
+    playlist_id INTEGER NOT NULL REFERENCES playlists(id),
+    track_count INTEGER DEFAULT 0,
+    played_at   INTEGER DEFAULT (unixepoch())
+  );
 `);
 
 const stmts = {
@@ -66,6 +73,10 @@ const stmts = {
   addTrack:          db.prepare(`INSERT INTO tracks (playlist_id, title, artist, url, source, duration, thumbnail) VALUES (@playlist_id, @title, @artist, @url, @source, @duration, @thumbnail)`),
   deleteTrack:       db.prepare(`DELETE FROM tracks WHERE id = ? AND playlist_id IN (SELECT id FROM playlists WHERE owner_id = ?)`),
   trackCount:        db.prepare(`SELECT COUNT(*) as count FROM tracks WHERE playlist_id = ?`),
+  totalTracks:       db.prepare(`SELECT COUNT(*) as count FROM tracks WHERE playlist_id IN (SELECT id FROM playlists WHERE owner_id = ?)`),
+  totalPlays:        db.prepare(`SELECT COALESCE(SUM(track_count),0) as count FROM play_events WHERE discord_id = ?`),
+  recentTracks:      db.prepare(`SELECT t.title, t.artist, t.thumbnail, t.source, COUNT(*) as plays FROM play_events pe JOIN playlists p ON pe.playlist_id = p.id JOIN tracks t ON t.playlist_id = p.id WHERE pe.discord_id = ? GROUP BY t.title ORDER BY pe.played_at DESC LIMIT 5`),
+  logPlay:           db.prepare(`INSERT INTO play_events (discord_id, playlist_id, track_count) VALUES (@discord_id, @playlist_id, @track_count)`),
 };
 
 app.use(express.json());
@@ -155,6 +166,21 @@ app.get('/auth/me', requireAuth, (req, res) => {
 app.post('/auth/logout', requireAuth, (req, res) => {
   res.clearCookie('auth_token');
   res.json({ ok: true });
+});
+
+app.get('/api/profile', requireAuth, (req, res) => {
+  const user = stmts.getUser.get(req.user.discord_id);
+  const playlists = stmts.getUserPlaylists.all(req.user.discord_id);
+  const totalTracks = stmts.totalTracks.get(req.user.discord_id).count;
+  const totalPlays = stmts.totalPlays.get(req.user.discord_id).count;
+  res.json({
+    user,
+    stats: {
+      playlists: playlists.length,
+      tracks:    totalTracks,
+      plays:     totalPlays,
+    },
+  });
 });
 
 app.get('/api/playlists', requireAuth, (req, res) => {
@@ -247,6 +273,7 @@ app.get('/api/bot/playlist/:name', async (req, res) => {
   if (!playlist) return res.status(404).json({ error: 'Playlist not found' });
   if (playlist.private) return res.status(403).json({ error: 'Playlist is private' });
   const tracks = stmts.getPlaylistTracks.all(playlist.id);
+  stmts.logPlay.run({ discord_id: user, playlist_id: playlist.id, track_count: tracks.length });
   res.json({ name: playlist.name, tracks: tracks.map(t => ({ title: t.title, artist: t.artist, url: t.url, source: t.source, duration: t.duration, thumbnail: t.thumbnail })) });
 });
 
@@ -344,6 +371,7 @@ async function spotifyPlaylistTracks(playlistId) {
   return tracks;
 }
 
+app.get('/profile', (req, res) => res.sendFile(path.join(__dirname, '../public/profile.html')));
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, '../public/dashboard.html')));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public/index.html')));
 
