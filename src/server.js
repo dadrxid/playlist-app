@@ -629,3 +629,29 @@ app.post('/api/spotify/import/v2', requireAuth, async (req, res) => {
   }
   res.json({ results });
 });
+
+async function youtubePlaylistTracks(playlistId) {
+  const tracks = [];
+  let pageToken = '';
+  do {
+    const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${config.youtubeApiKey}${pageToken ? '&pageToken=' + pageToken : ''}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    for (const item of (data.items || [])) {
+      const snip = item.snippet;
+      const videoId = snip.resourceId?.videoId;
+      if (!videoId || snip.title === 'Private video' || snip.title === 'Deleted video') continue;
+      tracks.push({
+        title: snip.title,
+        artist: snip.videoOwnerChannelTitle || '',
+        url: `https://www.youtube.com/watch?v=${videoId}`,
+        source: 'youtube',
+        thumbnail: snip.thumbnails?.medium?.url || snip.thumbnails?.default?.url || '',
+        duration: 0,
+      });
+    }
+    pageToken = data.nextPageToken || '';
+  } while (pageToken);
+  return tracks;
+}
