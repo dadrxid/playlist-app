@@ -453,6 +453,12 @@ app.get('/api/search', requireAuth, async (req, res) => {
     catch { return res.status(500).json({ error: 'Spotify playlist lookup failed' }); }
   }
 
+  const ytPlaylistMatch = q.match(/[?&]list=([A-Za-z0-9_-]+)/);
+  if (ytPlaylistMatch) {
+    try { return res.json({ results: await youtubePlaylistTracks(ytPlaylistMatch[1]), bulk: true }); }
+    catch(e) { return res.status(500).json({ error: 'YouTube playlist lookup failed: ' + e.message }); }
+  }
+
   const ytIdMatch = q.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
   if (ytIdMatch) {
     try { return res.json({ results: [await youtubeVideoInfo(ytIdMatch[1])] }); }
